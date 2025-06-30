@@ -1,0 +1,14 @@
+package com.clavrit.Repository;
+
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.clavrit.Entity.Client;
+
+
+
+
+
+public interface ClientRepository extends JpaRepository<Client, Long> {
+    
+}
