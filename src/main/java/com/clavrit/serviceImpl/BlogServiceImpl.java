@@ -18,29 +18,36 @@ import com.clavrit.Dto.BlogDto;
 import com.clavrit.Entity.Blog;
 import com.clavrit.Repository.BlogRepository;
 import com.clavrit.Service.BlogService;
+import com.clavrit.mapper.BlogMapper;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
+@RequiredArgsConstructor
 public class BlogServiceImpl implements BlogService{
 	
 	Logger logger = LoggerFactory.getLogger(BlogServiceImpl.class);
 
     @Autowired
     private BlogRepository blogRepository;
+    
+    @Autowired
+    private BlogMapper blogMapper;
 
     @Value("${file.upload.BlogImage}")
     private String basePath;
 
 	@Override
 	public BlogDto createBlog(BlogDto blogDto, List<MultipartFile> images) {
-        try {
-            Blog blog = mapToEntity(blogDto);
+		try {
+            Blog blog = blogMapper.toEntity(blogDto);
             List<String> imageUrls = saveImages(images);
             blog.setImageUrl(imageUrls);
             blog.setCreatedAt(LocalDateTime.now());
             blog.setUpdatedAt(LocalDateTime.now());
 
             Blog saved = blogRepository.save(blog);
-            return mapToDto(saved);
+            return blogMapper.toDto(saved);
         } catch (Exception e) {
             logger.error("Error while creating blog: {}", e.getMessage());
             throw new RuntimeException("Failed to create blog: " + e.getMessage());
@@ -58,41 +65,16 @@ public class BlogServiceImpl implements BlogService{
 
 	        Blog blog = optionalBlog.get();
 
-	        if (dto.getTitle() != null) {
-	            blog.setTitle(dto.getTitle());
-	        }
+	        blog.setTitle(dto.getTitle() != null ? dto.getTitle() : blog.getTitle());
+	        blog.setSubtitle(dto.getSubtitle() != null ? dto.getSubtitle() : blog.getSubtitle());
+	        blog.setAuthorName(dto.getAuthorName() != null ? dto.getAuthorName() : blog.getAuthorName());
+	        blog.setSummary(dto.getSummary() != null ? dto.getSummary() : blog.getSummary());
+	        blog.setContent(dto.getContent() != null ? dto.getContent() : blog.getContent());
+	        blog.setAdvantages(dto.getAdvantages() != null ? dto.getAdvantages() : blog.getAdvantages());
+	        blog.setDisadvantages(dto.getDisadvantages() != null ? dto.getDisadvantages() : blog.getDisadvantages());
+	        blog.setConclusion(dto.getConclusion() != null ? dto.getConclusion() : blog.getConclusion());
+	        blog.setTags(dto.getTags() != null ? dto.getTags() : blog.getTags());
 
-	        if (dto.getSubtitle() != null) {
-	            blog.setSubtitle(dto.getSubtitle());
-	        }
-
-	        if (dto.getAuthorName() != null) {
-	            blog.setAuthorName(dto.getAuthorName());
-	        }
-
-	        if (dto.getSummary() != null) {
-	            blog.setSummary(dto.getSummary());
-	        }
-
-	        if (dto.getContent() != null) {
-	            blog.setContent(dto.getContent());
-	        }
-
-	        if (dto.getAdvantages() != null) {
-	            blog.setAdvantages(dto.getAdvantages());
-	        }
-
-	        if (dto.getDisadvantages() != null) {
-	            blog.setDisadvantages(dto.getDisadvantages());
-	        }
-
-	        if (dto.getConclusion() != null) {
-	            blog.setConclusion(dto.getConclusion());
-	        }
-
-	        if (dto.getTags() != null) {
-	            blog.setTags(dto.getTags());
-	        }
 
 	        if (images != null && !images.isEmpty()) {
 	            List<String> existingImages = blog.getImageUrl();
@@ -119,7 +101,7 @@ public class BlogServiceImpl implements BlogService{
 	        Blog updated = blogRepository.save(blog);
 	        logger.info("Blog with ID {} updated successfully.", id);
 
-	        return mapToDto(updated);
+	        return blogMapper.toDto(updated);
 
 	    } catch (Exception e) {
 	        logger.error("Error updating blog with ID {}: {}", id, e.getMessage());
@@ -136,7 +118,7 @@ public class BlogServiceImpl implements BlogService{
 	            throw new RuntimeException("Blog not found with ID: " + id);
 	        }
 	        Blog blog = optionalBlog.get();
-	        return mapToDto(blog);
+	        return blogMapper.toDto(blog);
 	    } catch (Exception e) {
 	        logger.error("Error fetching blog with ID {}: {}", id, e.getMessage());
 	        throw new RuntimeException("Failed to fetch blog: " + e.getMessage());
@@ -155,7 +137,7 @@ public class BlogServiceImpl implements BlogService{
 
 	        List<BlogDto> blogDtos = new ArrayList<>();
 	        for (Blog blog : blogs) {
-	            blogDtos.add(mapToDto(blog));
+	            blogDtos.add(blogMapper.toDto(blog));
 	        }
 
 	        return blogDtos;
@@ -183,42 +165,6 @@ public class BlogServiceImpl implements BlogService{
 	    }
 	}
 
-
-	private Blog mapToEntity(BlogDto dto) {
-        return new Blog(
-                dto.getTitle(),
-                dto.getSubtitle(),
-                dto.getAuthorName(),
-                dto.getSummary(),
-                dto.getContent(),
-                dto.getAdvantages(),
-                dto.getDisadvantages(),
-                dto.getConclusion(),
-                dto.getImageUrl(),
-                dto.getTags(),
-                dto.getCreatedAt(),
-                dto.getUpdatedAt()
-        );
-    }
-
-    private BlogDto mapToDto(Blog blog) {
-        return new BlogDto(
-                blog.getId(),
-                blog.getTitle(),
-                blog.getSubtitle(),
-                blog.getAuthorName(),
-                blog.getSummary(),
-                blog.getContent(),
-                blog.getAdvantages(),
-                blog.getDisadvantages(),
-                blog.getConclusion(),
-                blog.getImageUrl(),
-                blog.getTags(),
-                blog.getCreatedAt(),
-                blog.getUpdatedAt()
-        );
-    }
-    
     private List<String> saveImages(List<MultipartFile> images) {
     	
         List<String> imagePaths = new ArrayList<>();

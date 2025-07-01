@@ -6,15 +6,13 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.clavrit.Dto.MailRequestDto;
 import com.clavrit.Entity.MailRecord;
 import com.clavrit.Repository.MailRecordRepository;
 import com.clavrit.Service.ContactService;
+import com.clavrit.mapper.MailRecordMapper;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -25,50 +23,27 @@ public class ContactServiceImpl implements ContactService {
 	private MailRecordRepository repository;
 	
 	@Autowired
-	private JavaMailSender mailSender;
+    private MailRecordMapper mapper;
 	
-	@Value("${contact.receiver.email}")
-    private String toEmail;
+	@Autowired
+    private MailSenderServiceImpl mailSenderService;
 	
     Logger logger = LoggerFactory.getLogger(ContactServiceImpl.class);
 
 	@Override
 	public String sendMailAndSaveRecord(MailRequestDto request) {
 		try {
-	        logger.info("Preparing to get mail from: {}", request.getEmail());
-
-	        SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(request.getEmail());
-            message.setTo(toEmail);
-	        message.setSubject("Mail from: " + request.getName() + " | Subject: " + request.getSubject());
-	        message.setText(
-	                "Email: " + request.getEmail() + "\n" +
-	                "Name: " + request.getName() + "\n" +
-	                "Subject: " + request.getSubject() + "\n" +
-	                "Message: " + request.getMessage() + "\n" +
-	                "Company: " + request.getCompany() + "\n" +
-	                "Phone: " + request.getPhone() + "\n" +
-	                "Country: " + request.getCountry()
-	        );
-
-	        mailSender.send(message);
-	        logger.info("Mail sent successfully to: {}", request.getDestination());
-
-	        MailRecord record = new MailRecord();
-	        record.setEmail(request.getEmail());
-	        record.setName(request.getName());
-	        record.setSubject(request.getSubject());
-	        record.setMessage(request.getMessage());
-	        record.setDestination(request.getDestination());
-	        record.setCompany(request.getCompany());
-	        record.setPhone(request.getPhone());
-	        record.setCountry(request.getCountry());
+	        MailRecord record = mapper.toEntity(request);
 	        record.setSentAt(LocalDateTime.now());
+	        record.setUpdatedAt(LocalDateTime.now());
 
 	        repository.save(record);
 	        logger.info("Mail record saved to DB for: {}", request.getEmail());
+	        
+	        mailSenderService.sendMail(request);
+            logger.info("Mail sent successfully ");
 
-	        return "Mail sent and record saved successfully.";
+            return "Mail sent and record saved successfully.";
 
 	    } catch (Exception e) {
 	        logger.error("Error sending mail or saving record: {}", e.getMessage());

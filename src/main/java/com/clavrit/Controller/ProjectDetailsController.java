@@ -14,8 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.clavrit.Dto.ProjectDto;
-import com.clavrit.Entity.ApiResponse;
+import com.clavrit.Enums.ApiStatus;
 import com.clavrit.Service.ProjectDetailsService;
+import com.clavrit.response.ApisResponse;
 
 @RestController
 @RequestMapping("/clavrit/projects")
@@ -25,56 +26,56 @@ public class ProjectDetailsController {
     private ProjectDetailsService projectService;
 	
 	@PostMapping
-	public ApiResponse createProjectWithImages(
+	public ApisResponse createProjectWithImages(
 	        @RequestPart("project") ProjectDto projectDto,
 	        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
 	    try {
 	        ProjectDto createdProject = projectService.createProjectDetails(projectDto, images);
-	        return new ApiResponse(true, 201, "Project details saved successfully", createdProject);
+	        return new ApisResponse(ApiStatus.CREATED, "Project details saved successfully", createdProject);
 	    } catch (Exception e) {
-	        return new ApiResponse(false, 500, "Error while adding project with images: " + e.getMessage(), null);
+	    	return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error while adding project", e.getMessage());
 	    }
 	}
 
 
     @GetMapping("/{id}")
-    public ApiResponse getProjectById(@PathVariable Long id) {
+    public ApisResponse getProjectById(@PathVariable Long id) {
         try {
             ProjectDto project = projectService.getProjectDetailsById(id);
-            return new ApiResponse(true, 200, "Project fetched successfully", project);
+            return new ApisResponse(ApiStatus.OK, "Project fetched successfully", project);
         } catch (Exception e) {
-            return new ApiResponse(false, 404, "Project not found: " + e.getMessage(), null);
+            return new ApisResponse(ApiStatus.NOT_FOUND, "Project not found", e.getMessage());
         }
     }
 
     @GetMapping
-    public ApiResponse getAllProjects() {
+    public ApisResponse getAllProjects() {
         try {
             List<ProjectDto> projects = projectService.getAllProjectsDetails();
-            return new ApiResponse(true, 200, "Projects fetched successfully", projects);
+            return new ApisResponse(ApiStatus.OK, "Projects fetched successfully", projects);
         } catch (Exception e) {
-            return new ApiResponse(false, 500, "Error fetching projects: " + e.getMessage(), null);
+        	return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error fetching projects", e.getMessage());
         }
     }
 
     @PutMapping("/{id}")
-    public ApiResponse updateProject(@PathVariable Long id, @RequestPart("project") ProjectDto projectDto,
+    public ApisResponse updateProject(@PathVariable Long id, @RequestPart("project") ProjectDto projectDto,
 	        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
             ProjectDto updated = projectService.updateProjectDetails(id, projectDto,images);
-            return new ApiResponse(true, 200, "Project updated successfully", updated);
+            return new ApisResponse(ApiStatus.OK, "Project updated successfully", updated);
         } catch (Exception e) {
-            return new ApiResponse(false, 500, "Error updating project: " + e.getMessage(), null);
+        	return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error updating project", e.getMessage());
         }
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse deleteProject(@PathVariable Long id) {
+    public ApisResponse deleteProject(@PathVariable Long id) {
         try {
             projectService.deleteProjectDetails(id);
-            return new ApiResponse(true, 200, "Project deleted successfully", null);
+            return new ApisResponse(ApiStatus.OK, "Project deleted successfully", null);
         } catch (Exception e) {
-            return new ApiResponse(false, 404, "Error deleting project: " + e.getMessage(), null);
+        	return new ApisResponse(ApiStatus.NOT_FOUND, "Error deleting project", e.getMessage());
         }
     }
 
