@@ -1,6 +1,6 @@
 package com.clavrit.Entity;
 
-import jakarta.persistence.*;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "job_applications")

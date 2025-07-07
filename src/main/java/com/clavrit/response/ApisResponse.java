@@ -2,13 +2,7 @@ package com.clavrit.response;
 
 import com.clavrit.Enums.ApiStatus;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
 public class ApisResponse {
     private boolean success;
     private int code;
@@ -28,4 +22,38 @@ public class ApisResponse {
         this.message = customMessage;
         this.data = data;
     }
+
+	public boolean isSuccess() {
+		return success;
+	}
+
+	public void setSuccess(boolean success) {
+		this.success = success;
+	}
+
+	public int getCode() {
+		return code;
+	}
+
+	public void setCode(int code) {
+		this.code = code;
+	}
+
+	public String getMessage() {
+		return message;
+	}
+
+	public void setMessage(String message) {
+		this.message = message;
+	}
+
+	public Object getData() {
+		return data;
+	}
+
+	public void setData(Object data) {
+		this.data = data;
+	}
+    
+    
 }

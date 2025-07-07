@@ -14,7 +14,7 @@ import com.clavrit.Repository.MailRecordRepository;
 import com.clavrit.Service.ContactService;
 import com.clavrit.mapper.MailRecordMapper;
 
-import jakarta.persistence.EntityNotFoundException;
+import javax.persistence.EntityNotFoundException;
 
 @Service
 public class ContactServiceImpl implements ContactService {

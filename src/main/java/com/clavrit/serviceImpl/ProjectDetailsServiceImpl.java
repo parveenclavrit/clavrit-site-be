@@ -1,19 +1,5 @@
 package com.clavrit.serviceImpl;
 
-import com.clavrit.Dto.ProjectDto;
-import com.clavrit.Entity.Project;
-import com.clavrit.Repository.ProjectRepository;
-import com.clavrit.Service.ProjectDetailsService;
-import com.clavrit.mapper.ProjectMapper;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -21,9 +7,18 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.clavrit.Dto.ProjectDto;
+import com.clavrit.Entity.Project;
+import com.clavrit.Repository.ProjectRepository;
+import com.clavrit.Service.ProjectDetailsService;
+import com.clavrit.mapper.ProjectMapper;
+
 @Service
-@RequiredArgsConstructor
-@Slf4j
 public class ProjectDetailsServiceImpl implements ProjectDetailsService {
 
 	@Autowired
@@ -46,10 +41,10 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
             project.setCreatedAt(LocalDateTime.now());
             project.setUpdatedAt(LocalDateTime.now());
             Project saved = projectRepository.save(project);
-            log.info("Project created successfully with ID: {}", saved.getId());
+            //log.info("Project created successfully with ID: {}", saved.getId());
             return projectMapper.toDto(saved);
         } catch (Exception e) {
-            log.error("Error while creating project: {}", e.getMessage());
+            //log.error("Error while creating project: {}", e.getMessage());
             throw new RuntimeException("Failed to create project: " + e.getMessage());
         }
     }
@@ -63,10 +58,10 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
         	}
         	Project project = optionalProject.get();
 
-            log.info("Project fetched with ID: {}", id);
+           // log.info("Project fetched with ID: {}", id);
             return projectMapper.toDto(project);
         } catch (Exception e) {
-            log.error("Error while fetching project: {}", e.getMessage());
+           // log.error("Error while fetching project: {}", e.getMessage());
             throw new RuntimeException("Failed to fetch project: " + e.getMessage());
         }
     }
@@ -75,14 +70,14 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
     public List<ProjectDto> getAllProjectsDetails() {
         try {
             List<Project> projects = projectRepository.findAll();
-            log.info("Total {} projects fetched", projects.size());
+            //log.info("Total {} projects fetched", projects.size());
             List<ProjectDto> projectDtos = new ArrayList<>();
             for (Project project : projects) {
                 projectDtos.add(projectMapper.toDto(project));
             }
             return projectDtos;
         } catch (Exception e) {
-            log.error("Error while fetching all projects: {}", e.getMessage());
+            //log.error("Error while fetching all projects: {}", e.getMessage());
             throw new RuntimeException("Failed to fetch projects", e);
         }
     }
@@ -111,7 +106,7 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
                         File oldFile = new File(imagePath);
                         if (oldFile.exists()) {
                             boolean deleted = oldFile.delete();
-                            log.info("Old image deleted: {} -> {}", imagePath, deleted);
+                           // log.info("Old image deleted: {} -> {}", imagePath, deleted);
                         }
                     }
                 }
@@ -120,10 +115,10 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
             }
 
             Project updated = projectRepository.save(existing);
-            log.info("Project updated successfully with ID: {}", id);
+            ///log.info("Project updated successfully with ID: {}", id);
             return projectMapper.toDto(updated);
         } catch (Exception e) {
-            log.error("Error while updating project: {}", e.getMessage());
+           // log.error("Error while updating project: {}", e.getMessage());
             throw new RuntimeException("Failed to update project: " + e.getMessage());
         }
     }
@@ -138,9 +133,9 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
         	Project project = optionalProject.get();
 
             projectRepository.delete(project);
-            log.info("Project deleted successfully with ID: {}", id);
+           // log.info("Project deleted successfully with ID: {}", id);
         } catch (Exception e) {
-            log.error("Error while deleting project: {}", e.getMessage());
+            //log.error("Error while deleting project: {}", e.getMessage());
             throw new RuntimeException("Failed to delete project: " + e.getMessage());
         }
     }
@@ -155,7 +150,7 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
                 String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
                 String fullPath = basePath + uniqueFileName;
                 file.transferTo(new File(fullPath));
-                log.info("Saved image to: {}", fullPath);
+              //  log.info("Saved image to: {}", fullPath);
                 imageUrls.add(fullPath);
             }
         }

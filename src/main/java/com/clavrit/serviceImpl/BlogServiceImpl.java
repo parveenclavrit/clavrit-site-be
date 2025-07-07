@@ -20,10 +20,7 @@ import com.clavrit.Repository.BlogRepository;
 import com.clavrit.Service.BlogService;
 import com.clavrit.mapper.BlogMapper;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
 public class BlogServiceImpl implements BlogService{
 	
 	Logger logger = LoggerFactory.getLogger(BlogServiceImpl.class);
