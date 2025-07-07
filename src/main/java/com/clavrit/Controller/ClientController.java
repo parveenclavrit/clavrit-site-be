@@ -2,6 +2,8 @@ package com.clavrit.Controller;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,38 +17,72 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.clavrit.Dto.ClientDTO;
 import com.clavrit.Service.ClientService;
+import com.clavrit.response.ApiResponse;
 
 @RestController
 @RequestMapping("/api/clients")
 public class ClientController {
 
-    @Autowired
-    private ClientService clientService;
+	 @Autowired
+	    private ClientService clientService;
 
-    @PostMapping
-    public ResponseEntity<ClientDTO> createClient(@RequestBody ClientDTO dto) {
-        return ResponseEntity.ok(clientService.createClient(dto));
-    }
+	    @PostMapping
+	    public ResponseEntity<ApiResponse<ClientDTO>> createClient(@Valid @RequestBody ClientDTO dto) {
+	        ClientDTO saved = clientService.createClient(dto);
+	        ApiResponse<ClientDTO> response = new ApiResponse<>(
+	                true,
+	                "Client created successfully.",
+	                saved
+	        );
+	        return ResponseEntity.ok(response);
+	    }
 
-    @GetMapping
-    public ResponseEntity<List<ClientDTO>> getAllClients() {
-        return ResponseEntity.ok(clientService.getAllClients());
-    }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ClientDTO> getClientById(@PathVariable Long id) {
-        return ResponseEntity.ok(clientService.getClientById(id));
-    }
+	    @GetMapping
+	    public ResponseEntity<ApiResponse<List<ClientDTO>>> getAllClients() {
+	        List<ClientDTO> clients = clientService.getAllClients();
+	        ApiResponse<List<ClientDTO>> response = new ApiResponse<>(
+	                true,
+	                "Clients retrieved successfully.",
+	                clients
+	        );
+	        return ResponseEntity.ok(response);
+	    }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<ClientDTO> updateClient(@PathVariable Long id, @RequestBody ClientDTO dto) {
-        return ResponseEntity.ok(clientService.updateClient(id, dto));
-    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteClient(@PathVariable Long id) {
-        clientService.deleteClient(id);
-        return ResponseEntity.noContent().build();
-    }
+	    @GetMapping("/{id}")
+	    public ResponseEntity<ApiResponse<ClientDTO>> getClientById(@PathVariable Long id) {
+	        ClientDTO client = clientService.getClientById(id);
+	        ApiResponse<ClientDTO> response = new ApiResponse<>(
+	                true,
+	                "Client retrieved successfully.",
+	                client
+	        );
+	        return ResponseEntity.ok(response);
+	    }
+
+
+	    @PutMapping("/{id}")
+	    public ResponseEntity<ApiResponse<ClientDTO>> updateClient(@PathVariable Long id, @RequestBody ClientDTO dto) {
+	        ClientDTO updatedClient = clientService.updateClient(id, dto);
+	        ApiResponse<ClientDTO> response = new ApiResponse<>(
+	                true,
+	                "Client updated successfully.",
+	                updatedClient
+	        );
+	        return ResponseEntity.ok(response);
+	    }
+
+
+	    @DeleteMapping("/{id}")
+	    public ResponseEntity<ApiResponse<Void>> deleteClient(@PathVariable Long id) {
+	        clientService.deleteClient(id);
+	        ApiResponse<Void> response = new ApiResponse<>(
+	                true,
+	                "Client deleted successfully.",
+	                null
+	        );
+	        return ResponseEntity.ok(response);
+	    }
 }
 

@@ -1,6 +1,9 @@
 package com.clavrit.Controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -31,5 +34,16 @@ public class JobDetailController {
     public ApiResponse<JobDetailDTO> getJobDetail(@PathVariable Long id) {
         JobDetailDTO dto = jobDetailService.getById(id);
         return new ApiResponse<>(true, "Job detail found", dto);
+    }
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<JobDetailDTO>>> getAllJobs() {
+        List<JobDetailDTO> jobs = jobDetailService.GetAllJob();
+
+        ApiResponse<List<JobDetailDTO>> response = new ApiResponse<>();
+        response.setSuccess(true);
+        response.setMessage("All jobs fetched successfully");
+        response.setData(jobs);
+
+        return ResponseEntity.ok(response);
     }
 }

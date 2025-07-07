@@ -1,5 +1,8 @@
 package com.clavrit.serviceImpl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,5 +46,12 @@ public class JobDetailServiceImpl implements JobDetailService {
         return jobDetailRepository.findById(id)
                 .map(JobDetailMapper::toDTO)
                 .orElse(null);
+    }
+    @Override
+    public List<JobDetailDTO> GetAllJob() {
+        return jobDetailRepository.findAll()
+                .stream()
+                .map(JobDetailMapper::toDTO)
+                .collect(Collectors.toList());
     }
 }
