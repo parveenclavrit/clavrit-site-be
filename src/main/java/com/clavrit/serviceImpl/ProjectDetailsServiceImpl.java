@@ -29,6 +29,9 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
 
     @Value("${file.upload.ProjectImage}")
     private String basePath;
+    
+    private static final String LOCAL_BASE_PATH = "/home/ubuntu/clavrit-website";
+    private static final String PUBLIC_URL_BASE = "http://157.20.190.17";
 
     @Override
     public ProjectDto createProjectDetails(ProjectDto projectDto, List<MultipartFile> images) {
@@ -85,12 +88,12 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
     @Override
     public ProjectDto updateProjectDetails(Long id, ProjectDto dto, List<MultipartFile> images) {
         try {
-        	Optional<Project> optionalProject = projectRepository.findById(id);
-        	if (!optionalProject.isPresent()) {
-        	    throw new RuntimeException("Project not found with ID: " + id);
-        	}
-        	Project existing = optionalProject.get();
+            Optional<Project> optionalProject = projectRepository.findById(id);
+            if (!optionalProject.isPresent()) {
+                throw new RuntimeException("Project not found with ID: " + id);
+            }
 
+            Project existing = optionalProject.get();
 
             if (dto.getTitle() != null) existing.setTitle(dto.getTitle());
             if (dto.getSummary() != null) existing.setSummary(dto.getSummary());
@@ -102,23 +105,30 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
             if (images != null && !images.isEmpty()) {
                 List<String> oldImages = existing.getImageUrl();
                 if (oldImages != null && !oldImages.isEmpty()) {
-                    for (String imagePath : oldImages) {
-                        File oldFile = new File(imagePath);
-                        if (oldFile.exists()) {
-                            boolean deleted = oldFile.delete();
-                           // log.info("Old image deleted: {} -> {}", imagePath, deleted);
+                    for (String imageUrl : oldImages) {
+                        try {
+                            // Convert public URL to local file path
+                            String localPath = imageUrl.replace(PUBLIC_URL_BASE, LOCAL_BASE_PATH);
+                            File oldFile = new File(localPath);
+                            if (oldFile.exists()) {
+                                boolean deleted = oldFile.delete();
+                                // log.info("Old image deleted: {} -> {}", localPath, deleted);
+                            }
+                        } catch (Exception ex) {
+                            // log.warn("Failed to delete image: {}", imageUrl, ex);
                         }
                     }
                 }
-                List<String> newImages = saveUploadedFiles(images);
+
+                List<String> newImages = saveUploadedFiles(images); // returns public URLs
                 existing.setImageUrl(newImages);
             }
 
             Project updated = projectRepository.save(existing);
-            ///log.info("Project updated successfully with ID: {}", id);
+            // log.info("Project updated successfully with ID: {}", id);
             return projectMapper.toDto(updated);
         } catch (Exception e) {
-           // log.error("Error while updating project: {}", e.getMessage());
+            // log.error("Error while updating project: {}", e.getMessage());
             throw new RuntimeException("Failed to update project: " + e.getMessage());
         }
     }
@@ -139,7 +149,7 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
             throw new RuntimeException("Failed to delete project: " + e.getMessage());
         }
     }
-
+    
     private List<String> saveUploadedFiles(List<MultipartFile> files) throws Exception {
         List<String> imageUrls = new ArrayList<>();
         File dir = new File(basePath);
@@ -150,11 +160,14 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
                 String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
                 String fullPath = basePath + uniqueFileName;
                 file.transferTo(new File(fullPath));
-              //  log.info("Saved image to: {}", fullPath);
-                imageUrls.add(fullPath);
+
+                // Convert local path to public URL
+                String publicUrl = fullPath.replace(LOCAL_BASE_PATH, PUBLIC_URL_BASE).replace("\\", "/");
+                imageUrls.add(publicUrl);
             }
         }
         return imageUrls;
     }
+
 
 }

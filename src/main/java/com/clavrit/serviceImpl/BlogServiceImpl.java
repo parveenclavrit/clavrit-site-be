@@ -32,7 +32,10 @@ public class BlogServiceImpl implements BlogService{
     private BlogMapper blogMapper;
 
     @Value("${file.upload.BlogImage}")
-    private String basePath;
+	private String blogImagePath;
+    
+    private static final String PUBLIC_URL_BASE = "http://157.20.190.17";
+    private static final String LOCAL_URL_BASE = "/home/ubuntu/clavrit-website";
 
 	@Override
 	public BlogDto createBlog(BlogDto blogDto, List<MultipartFile> images) {
@@ -76,17 +79,22 @@ public class BlogServiceImpl implements BlogService{
 	        if (images != null && !images.isEmpty()) {
 	            List<String> existingImages = blog.getImageUrl();
 	            if (existingImages != null && !existingImages.isEmpty()) {
-	                for (String path : existingImages) {
-	                    try {
-	                        File file = new File(path);
-	                        if (file.exists()) {
-	                            file.delete();
-	                            logger.info("Deleted old image: {}", path);
-	                        }
-	                    } catch (Exception e) {
-	                        logger.warn("Failed to delete image: {}", path);
-	                    }
-	                }
+	            	for (String url : existingImages) {
+	            	    try {
+	            	        // Convert public URL to local file path
+	            	        String localPath = url.replace(PUBLIC_URL_BASE, LOCAL_URL_BASE);
+
+	            	        File file = new File(localPath);
+	            	        if (file.exists()) {
+	            	            file.delete();
+	            	            logger.info("Deleted old image: {}", localPath);
+	            	        } else {
+	            	            logger.warn("File not found for deletion: {}", localPath);
+	            	        }
+	            	    } catch (Exception e) {
+	            	        logger.warn("Failed to delete image: {}", url, e);
+	            	    }
+	            	}
 	            }
 
 	            List<String> imageUrls = saveImages(images);
@@ -162,31 +170,37 @@ public class BlogServiceImpl implements BlogService{
 	    }
 	}
 
-    private List<String> saveImages(List<MultipartFile> images) {
-    	
-        List<String> imagePaths = new ArrayList<>();
-        if (images == null || images.isEmpty()) return imagePaths;
+	private List<String> saveImages(List<MultipartFile> images) {
+	    List<String> imageUrls = new ArrayList<>();
+	    if (images == null || images.isEmpty()) return imageUrls;
 
-        File dir = new File(basePath);
-        if (!dir.exists()) dir.mkdirs();
+	    File dir = new File(blogImagePath);
+	    if (!dir.exists()) dir.mkdirs();
 
-        for (MultipartFile file : images) {
-            if (file != null && !file.isEmpty()) {
-                try {
-                    String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                    String fullPath = basePath + uniqueFileName;
+	    for (MultipartFile file : images) {
+	        if (file != null && !file.isEmpty()) {
+	            try {
+	                String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+	                String fullPath = blogImagePath + uniqueFileName;
 
-                    File dest = new File(fullPath);
-                    file.transferTo(dest);
-                    logger.info("Saved blog image to: {}", fullPath);
+	                File dest = new File(fullPath);
+	                file.transferTo(dest);
 
-                    imagePaths.add(fullPath);
-                } catch (Exception e) {
-                    logger.error("Image saving failed: {}", e.getMessage());
-                    throw new RuntimeException("Error saving image: " + e.getMessage());
-                }
-            }
-        }
-        return imagePaths;    
-    }
+	                logger.info("Saved blog image to: {}", fullPath);
+
+	                // Convert full path to public URL
+	                String publicUrl = fullPath
+	                        .replace(LOCAL_URL_BASE, PUBLIC_URL_BASE)
+	                        .replace("\\", "/"); // in case of Windows paths
+
+	                imageUrls.add(publicUrl);
+	            } catch (Exception e) {
+	                logger.error("Image saving failed: {}", e.getMessage());
+	                throw new RuntimeException("Error saving image: " + e.getMessage());
+	            }
+	        }
+	    }
+	    return imageUrls;
+	}
+
 }

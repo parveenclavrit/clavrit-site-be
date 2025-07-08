@@ -19,7 +19,7 @@ public class JobApplicationMapper {
         
         if (dto.getUploadResume() != null && !dto.getUploadResume().isEmpty()) {
             try {
-                entity.setResumeFile(dto.getUploadResume().getBytes());
+                entity.setResumeFilePath(null);
                 entity.setResumeFileName(dto.getUploadResume().getOriginalFilename());
                 entity.setResumeFileType(dto.getUploadResume().getContentType());
             } catch (Exception e) {

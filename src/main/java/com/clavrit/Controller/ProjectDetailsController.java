@@ -3,6 +3,7 @@ package com.clavrit.Controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,6 +18,7 @@ import com.clavrit.Dto.ProjectDto;
 import com.clavrit.Enums.ApiStatus;
 import com.clavrit.Service.ProjectDetailsService;
 import com.clavrit.response.ApisResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/clavrit/projects")
@@ -25,18 +27,27 @@ public class ProjectDetailsController {
 	@Autowired
     private ProjectDetailsService projectService;
 	
-	@PostMapping
-	public ApisResponse createProjectWithImages(
-	        @RequestPart("project") ProjectDto projectDto,
-	        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
-	    try {
-	        ProjectDto createdProject = projectService.createProjectDetails(projectDto, images);
-	        return new ApisResponse(ApiStatus.CREATED, "Project details saved successfully", createdProject);
-	    } catch (Exception e) {
-	    	return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error while adding project", e.getMessage());
-	    }
-	}
+	 @Autowired
+	    private ObjectMapper objectMapper; // Inject Jackson's ObjectMapper
 
+	    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	    public ApisResponse createProjectWithImages(
+	            @RequestPart("project") String projectJson,
+	            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+
+	        try {
+	            // Convert project JSON string to ProjectDto
+	            ProjectDto projectDto = objectMapper.readValue(projectJson, ProjectDto.class);
+
+	            ProjectDto createdProject = projectService.createProjectDetails(projectDto, images);
+	            return new ApisResponse(ApiStatus.CREATED, "Project details saved successfully", createdProject);
+
+	        } catch (Exception e) {
+	            e.printStackTrace(); // For debugging
+	            return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error while adding project", e.getMessage());
+	        }
+	    }
+	
 
     @GetMapping("/{id}")
     public ApisResponse getProjectById(@PathVariable Long id) {

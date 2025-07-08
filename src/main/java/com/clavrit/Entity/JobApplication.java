@@ -17,16 +17,30 @@ public class JobApplication {
     @Column(length = 3000)
     private String coverLetter;
 
-    @Lob
-    private byte[] resumeFile;
+    
+    private String resumeFilePath;
 
     private String resumeFileName;
     private String resumeFileType;
 
     public JobApplication() {
     }
+    
+    
 
-    // --- Getters & Setters ---
+    public String getResumeFilePath() {
+		return resumeFilePath;
+	}
+
+
+
+	public void setResumeFilePath(String resumeFilePath) {
+		this.resumeFilePath = resumeFilePath;
+	}
+
+
+
+	// --- Getters & Setters ---
     public Long getId() {
         return id;
     }
@@ -67,13 +81,6 @@ public class JobApplication {
         this.coverLetter = coverLetter;
     }
 
-    public byte[] getResumeFile() {
-        return resumeFile;
-    }
-
-    public void setResumeFile(byte[] resumeFile) {
-        this.resumeFile = resumeFile;
-    }
 
     public String getResumeFileName() {
         return resumeFileName;

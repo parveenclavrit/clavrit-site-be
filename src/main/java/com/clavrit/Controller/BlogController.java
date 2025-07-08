@@ -3,20 +3,24 @@ package com.clavrit.Controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.clavrit.Dto.BlogDto;
 import com.clavrit.Enums.ApiStatus;
 import com.clavrit.Service.BlogService;
 import com.clavrit.response.ApisResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/clavrit/blogs")
@@ -25,17 +29,21 @@ public class BlogController {
 	@Autowired
     private BlogService blogService;
 	
-	@PostMapping
-    public ApisResponse createBlog(
-            @RequestPart("blog") BlogDto blogDto,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
-        try {
-			BlogDto createdBlog = blogService.createBlog(blogDto, images);
-			return new ApisResponse(ApiStatus.CREATED, "Blog created successfully", createdBlog);
-        } catch (Exception e) {
-        	return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error creating blog", e.getMessage());
-        }
-    }
+	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+	public ApisResponse createBlog(MultipartHttpServletRequest request,
+	                               @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+	    try {
+	        String blogJson = request.getParameter("blog");
+	        ObjectMapper mapper = new ObjectMapper();
+	        BlogDto blogDto = mapper.readValue(blogJson, BlogDto.class);
+
+	        BlogDto createdBlog = blogService.createBlog(blogDto, images);
+	        return new ApisResponse(ApiStatus.CREATED, "Blog created successfully", createdBlog);
+	    } catch (Exception e) {
+	        return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error creating blog", e.getMessage());
+	    }
+	}
+
 	
 	@PutMapping("/{id}")
     public ApisResponse updateBlog(
