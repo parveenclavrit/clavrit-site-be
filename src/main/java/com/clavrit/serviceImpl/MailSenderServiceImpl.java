@@ -45,8 +45,19 @@ public class MailSenderServiceImpl {
     
     private String buildMessageFormat(MailRequestDto request) {
         return String.format(
+        		"You have received a new contact request!%n%n"
+        				+ "      Name       : %s%n"
+        		        + "      Email      : %s%n"
+        		        + "      Phone      : %s%n"
+        		        + "      Company    : %s%n"
+        		        + "      Country    : %s%n"
+        		        + "      Subject    : %s%n%n"
+        		        + "      Message:%n"
+        		        + "      ------------------------------------------------------------%n"
+        		        + "      %s%n"
+        		        + "      ------------------------------------------------------------%n%n"
+        		        + "Destination: %s",
         		
-              
                 request.getName(),
                 request.getEmail(),
                 request.getPhone(),
