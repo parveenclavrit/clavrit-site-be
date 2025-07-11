@@ -34,8 +34,11 @@ public class BlogServiceImpl implements BlogService{
     @Value("${file.upload.BlogImage}")
 	private String blogImagePath;
     
-    private static final String PUBLIC_URL_BASE = "http://157.20.190.17";
-    private static final String LOCAL_URL_BASE = "/home/ubuntu/clavrit-website";
+    @Value("${LOCAL_BASE_PATH}")
+    private String LOCAL_URL_BASE;
+    
+    @Value("${PUBLIC_URL_BASE}")
+    private String PUBLIC_URL_BASE;
 
 	@Override
 	public BlogDto createBlog(BlogDto blogDto, List<MultipartFile> images) {

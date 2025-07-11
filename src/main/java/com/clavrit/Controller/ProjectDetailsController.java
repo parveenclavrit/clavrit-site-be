@@ -28,7 +28,7 @@ public class ProjectDetailsController {
     private ProjectDetailsService projectService;
 	
 	 @Autowired
-	    private ObjectMapper objectMapper; // Inject Jackson's ObjectMapper
+	 private ObjectMapper objectMapper; // Inject Jackson's ObjectMapper
 
 	    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	    public ApisResponse createProjectWithImages(

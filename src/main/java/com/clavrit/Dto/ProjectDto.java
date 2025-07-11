@@ -17,7 +17,7 @@ public class ProjectDto {
     
     private List<String> technologies;
     
-    private Map<String, String> keyPoints;
+    private List<String> keyPoints;
     
     private LocalDateTime createdAt;
     
@@ -63,11 +63,11 @@ public class ProjectDto {
 		this.technologies = technologies;
 	}
 
-	public Map<String, String> getKeyPoints() {
+	public List<String> getKeyPoints() {
 		return keyPoints;
 	}
 
-	public void setKeyPoints(Map<String, String> keyPoints) {
+	public void setKeyPoints(List<String> keyPoints) {
 		this.keyPoints = keyPoints;
 	}
 

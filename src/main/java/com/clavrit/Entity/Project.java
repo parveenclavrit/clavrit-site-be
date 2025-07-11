@@ -2,7 +2,6 @@ package com.clavrit.Entity;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 import javax.persistence.CollectionTable;
 import javax.persistence.Column;
@@ -11,7 +10,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.MapKeyColumn;
 
 @Entity
 
@@ -34,10 +32,7 @@ public class Project {
     private List<String> technologies;
 
     @ElementCollection
-    @MapKeyColumn(name = "key_heading")
-    @Column(name = "explanation")
-    @CollectionTable(name = "project_keypoints")
-    private Map<String, String> keyPoints;
+    private List<String> keyPoints;
     
     private LocalDateTime createdAt;
     
@@ -83,11 +78,11 @@ public class Project {
 		this.technologies = technologies;
 	}
 
-	public Map<String, String> getKeyPoints() {
+	public List<String> getKeyPoints() {
 		return keyPoints;
 	}
 
-	public void setKeyPoints(Map<String, String> keyPoints) {
+	public void setKeyPoints(List<String> keyPoints) {
 		this.keyPoints = keyPoints;
 	}
 

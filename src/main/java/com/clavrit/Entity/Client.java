@@ -1,5 +1,7 @@
 package com.clavrit.Entity;
 
+import java.time.LocalDateTime;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,6 +20,10 @@ public class Client {
     private String company;
     private String email;
     private String phone;
+    
+    private String logoImage;
+    
+    private LocalDateTime createdAt;
 
     public Long getId() {
 		return id;
@@ -49,10 +55,18 @@ public class Client {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
-	
-	
-
-    // Getters and Setters
+	public String getLogoImage() {
+		return logoImage;
+	}
+	public void setLogoImage(String logoImage) {
+		this.logoImage = logoImage;
+	}
+	public LocalDateTime getCreatedAt() {
+		return createdAt;
+	}
+	public void setCreatedAt(LocalDateTime createdAt) {
+		this.createdAt = createdAt;
+	}
 }
 
 

@@ -14,6 +14,8 @@ public class ClientMapper {
         dto.setCompany(client.getCompany());
         dto.setEmail(client.getEmail());
         dto.setPhone(client.getPhone());
+        dto.setLogoImage(client.getLogoImage());
+        dto.setCreatedAt(client.getCreatedAt());
         return dto;
     }
 
@@ -24,6 +26,7 @@ public class ClientMapper {
         client.setCompany(dto.getCompany());
         client.setEmail(dto.getEmail());
         client.setPhone(dto.getPhone());
+        client.setLogoImage(dto.getLogoImage());
         return client;
     }
 }
