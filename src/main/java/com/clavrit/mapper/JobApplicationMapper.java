@@ -10,23 +10,25 @@ import com.clavrit.Entity.JobApplication;
 public class JobApplicationMapper {
 
     
-    public JobApplication toEntity(JobApplicationRequestDto dto) {
-        JobApplication entity = new JobApplication();
-        entity.setFullName(dto.getFullName());
-        entity.setEmail(dto.getEmail());
-        entity.setPhone(dto.getPhone());
-        entity.setCoverLetter(dto.getCoverLetter());
-        
-        if (dto.getUploadResume() != null && !dto.getUploadResume().isEmpty()) {
-            try {
-                entity.setResumeFilePath(null);
-                entity.setResumeFileName(dto.getUploadResume().getOriginalFilename());
-                entity.setResumeFileType(dto.getUploadResume().getContentType());
-            } catch (Exception e) {
-                throw new RuntimeException("Failed to convert uploaded file", e);
-            }
-        }
-        return entity;
-    }
-}
+	
+
+	    public JobApplication toEntity(JobApplicationRequestDto dto) {
+	        JobApplication entity = new JobApplication();
+
+	        entity.setFullName(dto.getFullName());
+	        entity.setEmail(dto.getEmail());
+	        entity.setPhone(dto.getPhone());
+	        entity.setJobAppliedFor(dto.getJobAppliedFor());
+	        entity.setQualification(dto.getQualification());
+	        entity.setTotalYOE(dto.getTotalYOE());
+	        entity.setRelevantExperience(dto.getRelevantExperience());
+	        entity.setCurrentCompany(dto.getCurrentCompany());
+	        entity.setCurrentCTC(dto.getCurrentCTC());
+	        entity.setNoticePeriod(dto.getNoticePeriod());
+	        entity.setCoverLetter(dto.getCoverLetter());
+
+	        return entity;
+	    }
+	}
+
 
