@@ -70,9 +70,12 @@ public class ProjectDetailsController {
     }
 
     @PutMapping(value ="/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ApisResponse updateProject(@PathVariable Long id, @RequestPart("project") ProjectDto projectDto,
+    public ApisResponse updateProject(@PathVariable Long id, @RequestPart("project") String projectJson,
 	        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
+        	
+        	ProjectDto projectDto = objectMapper.readValue(projectJson, ProjectDto.class);
+        	
             ProjectDto updated = projectService.updateProjectDetails(id, projectDto,images);
             return new ApisResponse(ApiStatus.OK, "Project updated successfully", updated);
         } catch (Exception e) {

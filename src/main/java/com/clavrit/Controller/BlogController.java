@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.clavrit.Dto.BlogDto;
+import com.clavrit.Dto.ProjectDto;
 import com.clavrit.Enums.ApiStatus;
 import com.clavrit.Service.BlogService;
 import com.clavrit.response.ApisResponse;
@@ -48,9 +49,12 @@ public class BlogController {
 	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApisResponse updateBlog(
             @PathVariable Long id,
-            @RequestPart("blog") BlogDto blogDto,
+            @RequestPart("blog") String blogJson,
             @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {
+        	ObjectMapper mapper = new ObjectMapper();
+        	BlogDto blogDto = mapper.readValue(blogJson, BlogDto.class);
+        	
             BlogDto updatedBlog = blogService.updateBlog(id, blogDto, images);
             return new ApisResponse(ApiStatus.OK, "Blog updated successfully", updatedBlog);
         } catch (Exception e) {
