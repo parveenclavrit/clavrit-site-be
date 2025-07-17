@@ -69,7 +69,7 @@ public class ProjectDetailsController {
         }
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value ="/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApisResponse updateProject(@PathVariable Long id, @RequestPart("project") ProjectDto projectDto,
 	        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
         try {

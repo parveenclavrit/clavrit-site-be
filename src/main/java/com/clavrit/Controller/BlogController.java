@@ -45,7 +45,7 @@ public class BlogController {
 	}
 
 	
-	@PutMapping("/{id}")
+	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApisResponse updateBlog(
             @PathVariable Long id,
             @RequestPart("blog") BlogDto blogDto,
