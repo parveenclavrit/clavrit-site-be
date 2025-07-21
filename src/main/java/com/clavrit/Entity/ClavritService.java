@@ -11,6 +11,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity
@@ -24,7 +25,7 @@ public class ClavritService {
 	    private String name;
 	    private String type;
 
-	    @Column(length = 2000)
+	    @Lob
 	    private String description;
 
 	    @ElementCollection

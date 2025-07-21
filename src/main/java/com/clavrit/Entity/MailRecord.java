@@ -18,6 +18,7 @@ public class MailRecord {
     
     private String subject;
     
+    @Lob
     private String message;
     
     private String destination;

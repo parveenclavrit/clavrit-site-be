@@ -21,7 +21,7 @@ public class JobApplication {
     private String currentCTC;
     private String noticePeriod;
 
-    @Column(length = 3000)
+    @Lob
     private String coverLetter;
 
     private String resumeFilePath;

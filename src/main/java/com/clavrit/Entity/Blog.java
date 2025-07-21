@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 
 @Entity
 public class Blog {
@@ -22,14 +23,19 @@ public class Blog {
 
     private String authorName;
 
+    @Lob
     private String summary;
 
+    @Lob
     private String content;
 
+    @Lob
     private String advantages;
 
+    @Lob
     private String disadvantages;
 
+    @Lob
     private String conclusion;
 
     @ElementCollection
