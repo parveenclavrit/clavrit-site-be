@@ -24,10 +24,14 @@ public class JobApplicationServiceImpl implements JobApplicationService {
 
 	
 	 @Value("${file.upload.resume}")
-		private String resumeLocalPath;
+	 private String resumeLocalPath;
+	 
+	 @Value("${LOCAL_BASE_PATH}")
+	 private String LOCAL_URL_BASE;
 	    
-	    private static final String PUBLIC_URL_BASE = "http://157.20.190.17";
-	    private static final String LOCAL_URL_BASE = "/home/ubuntu/clavrit-website";
+	 @Value("${PUBLIC_URL_BASE}")
+	 private String PUBLIC_URL_BASE;
+	 
     @Autowired
     private JobApplicationMapper mapper;
 

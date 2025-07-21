@@ -27,10 +27,13 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
     private ServiceMapper mapper;
 
     @Value("${file.upload.service}")
-    private String servicePath; // E.g., /home/ubuntu/clavrit-website/uploads/services/
-
-    private static final String PUBLIC_URL_BASE = "http://157.20.190.17";
-    private static final String LOCAL_URL_BASE = "/home/ubuntu/clavrit-website";
+    private String servicePath; 
+    
+    @Value("${LOCAL_BASE_PATH}")
+    private String LOCAL_URL_BASE;
+    
+    @Value("${PUBLIC_URL_BASE}")
+    private String PUBLIC_URL_BASE;
 
     @Override
     public ClavritService createService(ServiceDto dto, List<MultipartFile> files) {
