@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.clavrit.Dto.ProjectDto;
+import com.clavrit.Entity.Project;
 
 public interface ProjectDetailsService {
 	
@@ -17,5 +18,6 @@ public interface ProjectDetailsService {
     ProjectDto updateProjectDetails(Long id, ProjectDto projectDto,List<MultipartFile> images);
 
     void deleteProjectDetails(Long id);
-    
+    List<Project> saveAllProjects(List<Project> projects);
+        
 }

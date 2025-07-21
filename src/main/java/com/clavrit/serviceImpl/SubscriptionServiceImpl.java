@@ -81,5 +81,15 @@ public class SubscriptionServiceImpl implements SubscriptionService {
             log.error("Failed to send email to {}: {}", toEmail, e.getMessage());
         }
     }
+	
+	@Override
+	public List<Subscriber> saveAllSubscribers(List<Subscriber> subscribers) {
+	    try {
+	        return subscriberRepository.saveAll(subscribers);
+	    } catch (Exception e) {
+	        throw new RuntimeException("Failed to save subscribers: " + e.getMessage());
+	    }
+	}
+
 
 }

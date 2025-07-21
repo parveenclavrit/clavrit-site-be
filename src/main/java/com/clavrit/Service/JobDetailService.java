@@ -3,6 +3,7 @@ package com.clavrit.Service;
 import java.util.List;
 
 import com.clavrit.Dto.JobDetailDTO;
+import com.clavrit.Entity.JobDetail;
 
 public interface JobDetailService {
 	
@@ -15,5 +16,6 @@ public interface JobDetailService {
     JobDetailDTO update(Long id, JobDetailDTO dto);
     
     String delete(Long id);
+    List<JobDetail> saveAllJobs(List<JobDetail> jobs);
 }
 

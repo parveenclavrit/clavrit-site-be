@@ -19,6 +19,6 @@ public interface ServiceManagementService {
 	    Optional<ClavritService> getService(Long id);
 
 	    ClavritService updateService(Long id, ServiceDto dto, List<MultipartFile> images );
-
+	    List<ClavritService> createServiceList( List<ClavritService> service);
 	    void deleteService(Long id);
 }

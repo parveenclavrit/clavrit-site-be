@@ -151,5 +151,13 @@ public class PartnerRequestServiceImpl implements PartnerRequestService{
             log.error("Failed to send email to {}: {}", toEmail, e.getMessage());
         }
     }
+	@Override
+	public List<PartnerRequest> saveAllPartnerRequests(List<PartnerRequest> requests) {
+	    try {
+	        return repository.saveAll(requests);
+	    } catch (Exception e) {
+	        throw new RuntimeException("Failed to save partner requests: " + e.getMessage());
+	    }
+	}
 
 }

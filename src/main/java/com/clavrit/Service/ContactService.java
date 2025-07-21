@@ -16,5 +16,6 @@ public interface ContactService {
     MailRecord updateMailRecord(Long id, MailRequestDto request);
 
     String deleteMailById(Long id);
+    List<MailRecord> SaveRecordList(List<MailRecord> mails);
 
 }

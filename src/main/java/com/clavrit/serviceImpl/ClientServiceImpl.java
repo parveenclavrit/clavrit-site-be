@@ -59,6 +59,21 @@ public class ClientServiceImpl implements ClientService {
         }
     }
 
+	@Override
+	public List<Client> createClientList(List<Client> clients) {
+		try {
+
+			List<Client> saved = clientRepository.saveAll(clients);
+			// log.info("Client created successfully with ID: {}",));
+			return saved;
+
+		} catch (Exception e) {
+			log.error("Error while creating client: {}", e.getMessage());
+			throw new RuntimeException("Failed to create client: " + e.getMessage());
+		}
+	}
+
+
     @Override
     public ClientDTO getClientById(Long id) {
         try {

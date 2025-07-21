@@ -56,6 +56,18 @@ public class BlogServiceImpl implements BlogService{
             throw new RuntimeException("Failed to create blog: " + e.getMessage());
         }
 	}
+	
+	@Override
+	public List<Blog> createBlogList( List<Blog> blogs) {
+		try {
+   
+            List<Blog> saved = blogRepository.saveAll(blogs);
+            return saved;
+        } catch (Exception e) {
+            logger.error("Error while creating blog: {}", e.getMessage());
+            throw new RuntimeException("Failed to create blog: " + e.getMessage());
+        }
+	}
     
 
 	@Override

@@ -50,6 +50,21 @@ public class ContactServiceImpl implements ContactService {
 	        throw new RuntimeException("Failed to send mail or save record: " + e.getMessage());
 	    }
 	}
+	
+	@Override
+	public List<MailRecord> SaveRecordList(List<MailRecord> mails) {
+		try {
+
+			repository.saveAll(mails);
+			logger.info("Mail record saved to DB for: {}");
+
+			return mails;
+
+		} catch (Exception e) {
+			logger.error("Error sending mail or saving record: {}", e.getMessage());
+			throw new RuntimeException("Failed to send mail or save record: " + e.getMessage());
+		}
+	}
 
 	@Override
 	public List<MailRecord> getAllMails() {

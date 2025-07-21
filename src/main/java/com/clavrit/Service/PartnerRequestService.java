@@ -3,6 +3,7 @@ package com.clavrit.Service;
 import java.util.List;
 
 import com.clavrit.Dto.PartnerRequestDto;
+import com.clavrit.Entity.PartnerRequest;
 
 public interface PartnerRequestService {
 	
@@ -15,5 +16,5 @@ public interface PartnerRequestService {
 	PartnerRequestDto updateRequest(Long id, PartnerRequestDto dto);
 
 	String deleteRequest(Long id);
-
+	List<PartnerRequest> saveAllPartnerRequests(List<PartnerRequest> requests);
 }

@@ -176,6 +176,14 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
         }
         return imageUrls;
     }
+    @Override
+    public List<Project> saveAllProjects(List<Project> projects) {
+        try {
+            return projectRepository.saveAll(projects);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save projects: " + e.getMessage());
+        }
+    }
 
 
 }

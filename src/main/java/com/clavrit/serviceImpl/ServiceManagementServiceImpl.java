@@ -46,6 +46,17 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
             throw new RuntimeException("Failed to create service: " + e.getMessage());
         }
     }
+    
+    @Override
+    public List<ClavritService> createServiceList(List<ClavritService> services) {
+        try {
+            List<ClavritService> service =  serviceRepo.saveAll(services);
+             return service;
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create services: " + e.getMessage(), e);
+        }
+    }
+
 
     @Override
     public List<ClavritService> getAllServices() {

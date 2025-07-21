@@ -9,5 +9,5 @@ public interface SubscriptionService {
 	String subscribe(String email);
 	
 	List<Subscriber> getAllSubscribers();
-
+	List<Subscriber> saveAllSubscribers(List<Subscriber> subscribers);
 }

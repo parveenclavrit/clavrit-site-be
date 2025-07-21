@@ -54,7 +54,14 @@ public class JobApplicationServiceImpl implements JobApplicationService {
             return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Failed to apply", e.getMessage());
         }
     }
-
+    @Override
+    public List<JobApplication> saveAllJobApplications(List<JobApplication> applications) {
+        try {
+            return repository.saveAll(applications);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to save job applications: " + e.getMessage());
+        }
+    }
     @Override
     public ApisResponse getJobApplication(Long id) {
         try {

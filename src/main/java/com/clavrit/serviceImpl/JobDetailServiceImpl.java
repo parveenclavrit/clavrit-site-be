@@ -122,6 +122,13 @@ public class JobDetailServiceImpl implements JobDetailService {
             throw new RuntimeException("Failed to delete job detail");
         }
 	}
-
+	@Override
+	public List<JobDetail> saveAllJobs(List<JobDetail> jobs) {
+	    try {
+	        return jobDetailRepository.saveAll(jobs);
+	    } catch (Exception e) {
+	        throw new RuntimeException("Failed to save jobs: " + e.getMessage());
+	    }
+	}
     
 }
