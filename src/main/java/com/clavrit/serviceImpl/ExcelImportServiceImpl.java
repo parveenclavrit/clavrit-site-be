@@ -4,10 +4,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.clavrit.Entity.Blog;
@@ -23,6 +26,10 @@ import com.clavrit.Service.ExcelImportService;
 
 @Service
 public class ExcelImportServiceImpl implements ExcelImportService {
+	
+	
+	 @Value("${PUBLIC_URL_BASE}")
+	    private String PUBLIC_URL_BASE;
 
     @Override
     public List<ClavritService> readServices(Sheet sheet) {
@@ -33,6 +40,9 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             service.setName(row.getCell(0).getStringCellValue());
             service.setType(row.getCell(1).getStringCellValue());
             service.setDescription(row.getCell(2).getStringCellValue());
+            String imageUrlsRaw = getCellValue(row, 3); 
+            List<String> imageUrls = buildFullImageUrls(imageUrlsRaw);
+            service.setImageUrl(imageUrls);
             services.add(service);
         }
         return services;
@@ -57,11 +67,12 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             blog.setAdvantages(getCellValue(row, 5));
             blog.setDisadvantages(getCellValue(row, 6));
             blog.setConclusion(getCellValue(row, 7));
-            String imageUrlStr = row.getCell(8).getStringCellValue();
-            List<String> imageUrls = Arrays.asList(imageUrlStr.split("\\s*,\\s*"));
+            
+            String imageUrlsRaw = getCellValue(row, 8); 
+            List<String> imageUrls = buildFullImageUrls(imageUrlsRaw);
             blog.setImageUrl(imageUrls);
             String tags = row.getCell(8).getStringCellValue();                         
-            List<String> tagsList = Arrays.asList(imageUrlStr.split("\\s*,\\s*"));
+            List<String> tagsList = Arrays.asList(tags.split("\\s*,\\s*"));
             blog.setTags(tagsList);
             
             // Optional: You can allow overriding createdAt and updatedAt via Excel (cols 10 & 11), or just default to now:
@@ -89,7 +100,7 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 
             // Read imageUrl as comma-separated
             String imageUrlStr = row.getCell(4).getStringCellValue();
-            List<String> imageUrls = Arrays.asList(imageUrlStr.split("\\s*,\\s*"));
+            List<String> imageUrls = buildFullImageUrls(imageUrlStr);
             project.setImageUrl(imageUrls);
 
             // Read technologies as comma-separated
@@ -156,10 +167,11 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             application.setCurrentCTC(getCellValue(row, 8));
             application.setNoticePeriod(getCellValue(row, 9));
             application.setCoverLetter(getCellValue(row, 10));
-            application.setResumeFilePath(getCellValue(row, 11));
+            String imageUrlStr = getCellValue(row, 11);
+            List<String> resume = buildFullImageUrls(imageUrlStr);
+            application.setResumeFilePath(resume.get(0));
             application.setResumeFileName(getCellValue(row, 12));
             application.setResumeFileType(getCellValue(row, 13));
-
             applications.add(application);
         }
 
@@ -205,7 +217,10 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             client.setCompany(getCellValue(row, 1));
             client.setEmail(getCellValue(row, 2));
             client.setPhone(getCellValue(row, 3));
-            client.setLogoImage(getCellValue(row, 4));
+            String imageUrlStr = row.getCell(4).getStringCellValue();
+            List<String> imageUrls = buildFullImageUrls(imageUrlStr);
+           
+            client.setLogoImage(imageUrls.get(0));
 
             clients.add(client);
         }
@@ -276,5 +291,22 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 return "";
         }
     }
+    
+    private List<String> buildFullImageUrls(String cellValue) {
+        if (cellValue == null || cellValue.trim().isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        return Arrays.stream(cellValue.split("\\s*,\\s*"))
+                .filter(s -> !s.isEmpty())
+                .map(new Function<String, String>() {
+                    @Override
+                    public String apply(String s) {
+                        return PUBLIC_URL_BASE+"/upload/"+s;
+                    }
+                })
+                .collect(Collectors.toList());
+    }
+
 
 }
