@@ -2,7 +2,13 @@ package com.clavrit.serviceImpl;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +47,12 @@ public class JobApplicationServiceImpl implements JobApplicationService {
     @Override
     public ApisResponse applyToJob(JobApplicationRequestDto dto) {
         try {
+        	boolean exists = repository.existsByEmailIgnoreCaseAndPhoneAndJobAppliedForIgnoreCase(
+                    dto.getEmail(), dto.getPhone(), dto.getJobAppliedFor());
+
+            if (exists) {
+                return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Application already submitted with the same details", null);
+            }
             JobApplication entity = mapper.toEntity(dto);
 
             if (dto.getUploadResume() != null && !dto.getUploadResume().isEmpty()) {
@@ -57,7 +69,53 @@ public class JobApplicationServiceImpl implements JobApplicationService {
     @Override
     public List<JobApplication> saveAllJobApplications(List<JobApplication> applications) {
         try {
-            return repository.saveAll(applications);
+        	if (applications == null || applications.isEmpty()) return Collections.emptyList();
+
+            // Fetch all existing applications
+            List<JobApplication> existingApplications = repository.findAll();
+
+            Map<String, JobApplication> existingMap = new HashMap<>();
+            for (JobApplication existing : existingApplications) {
+                String key = (existing.getEmail().toLowerCase() + "|" +
+                              existing.getPhone().trim() + "|" +
+                              existing.getJobAppliedFor().toLowerCase()).trim();
+                existingMap.put(key, existing);
+            }
+
+            Set<String> processedKeys = new HashSet<>();
+            List<JobApplication> toSave = new ArrayList<>();
+
+            for (JobApplication incoming : applications) {
+                String key = (incoming.getEmail().toLowerCase() + "|" +
+                              incoming.getPhone().trim() + "|" +
+                              incoming.getJobAppliedFor().toLowerCase()).trim();
+
+                if (processedKeys.contains(key)) {
+                    continue; 
+                }
+
+                processedKeys.add(key);
+
+                if (existingMap.containsKey(key)) {
+                    JobApplication existing = existingMap.get(key);
+                    
+                    existing.setFullName(incoming.getFullName());
+                    existing.setQualification(incoming.getQualification());
+                    existing.setTotalYOE(incoming.getTotalYOE());
+                    existing.setRelevantExperience(incoming.getRelevantExperience());
+                    existing.setCurrentCompany(incoming.getCurrentCompany());
+                    existing.setCurrentCTC(incoming.getCurrentCTC());
+                    existing.setNoticePeriod(incoming.getNoticePeriod());
+                    existing.setCoverLetter(incoming.getCoverLetter());
+                    
+                    toSave.add(existing);
+                } else {
+                    
+                    toSave.add(incoming);
+                }
+            }
+
+            return repository.saveAll(toSave);
         } catch (Exception e) {
             throw new RuntimeException("Failed to save job applications: " + e.getMessage());
         }

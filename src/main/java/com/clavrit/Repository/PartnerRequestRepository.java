@@ -6,4 +6,6 @@ import com.clavrit.Entity.PartnerRequest;
 
 public interface PartnerRequestRepository extends JpaRepository<PartnerRequest, Long>{
 
+	boolean existsByCompanyNameIgnoreCaseAndEmailIgnoreCase(String companyName, String email);
+	
 }

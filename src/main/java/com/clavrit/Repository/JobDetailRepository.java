@@ -8,4 +8,7 @@ import com.clavrit.Entity.JobDetail;
 
 @Repository
 public interface JobDetailRepository extends JpaRepository<JobDetail, Long> {
+	
+	boolean existsByJobDesignationIgnoreCase(String jobDesignation);
+
 }

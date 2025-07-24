@@ -3,8 +3,13 @@ package com.clavrit.serviceImpl;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -43,6 +48,11 @@ public class BlogServiceImpl implements BlogService{
 	@Override
 	public BlogDto createBlog(BlogDto blogDto, List<MultipartFile> images) {
 		try {
+			boolean exists = blogRepository.existsByTitleIgnoreCaseAndAuthorNameIgnoreCase(blogDto.getTitle(), blogDto.getAuthorName());
+	        if (exists) {
+	            throw new RuntimeException("A blog with the same title and author already exists.");
+	        }
+	        
             Blog blog = blogMapper.toEntity(blogDto);
             List<String> imageUrls = saveImages(images);
             blog.setImageUrl(imageUrls);
@@ -60,11 +70,87 @@ public class BlogServiceImpl implements BlogService{
 	@Override
 	public List<Blog> createBlogList( List<Blog> blogs) {
 		try {
-   
-            List<Blog> saved = blogRepository.saveAll(blogs);
-            return saved;
+			if (blogs == null || blogs.isEmpty()) {
+		        logger.warn("No blogs provided to save or update.");
+		        return Collections.emptyList();
+		    }
+
+		    List<Blog> existingBlogs = blogRepository.findAll();
+
+		    Map<String, Blog> existingMap = new HashMap<>();
+		    for (Blog existing : existingBlogs) {
+		        String key = (existing.getTitle().toLowerCase() + "|" + existing.getAuthorName().toLowerCase()).trim();
+		        existingMap.put(key, existing);
+		    }
+
+		    Set<String> processedKeys = new HashSet<>();
+		    List<Blog> blogsToSave = new ArrayList<>();
+
+		    for (Blog incoming : blogs) {
+		        if (incoming.getTitle() == null || incoming.getAuthorName() == null) {
+		            logger.warn("Skipping blog with missing title or author.");
+		            continue;
+		        }
+
+		        String key = (incoming.getTitle().toLowerCase() + "|" + incoming.getAuthorName().toLowerCase()).trim();
+
+		        if (processedKeys.contains(key)) {
+		            logger.warn("Duplicate blog in input list. Skipping: Title='{}', Author='{}'",
+		                    incoming.getTitle(), incoming.getAuthorName());
+		            continue;
+		        }
+
+		        processedKeys.add(key);
+
+		        if (existingMap.containsKey(key)) {
+		            
+		            Blog existing = existingMap.get(key);
+		            existing.setContent(incoming.getContent());
+		            existing.setTags(incoming.getTags());
+		            existing.setAdvantages(incoming.getAdvantages());
+		            existing.setDisadvantages(incoming.getDisadvantages());
+		            existing.setSummary(incoming.getSummary());
+		            existing.setConclusion(incoming.getConclusion());
+		            if (existing.getImageUrl() != null && !existing.getImageUrl().isEmpty()) {
+		            	for (String url : existing.getImageUrl()) {
+		            	    try {
+		            	        // Convert public URL to local file path
+		            	        String localPath = url.replace(PUBLIC_URL_BASE, LOCAL_URL_BASE);
+
+		            	        File file = new File(localPath);
+		            	        if (file.exists()) {
+		            	            file.delete();
+		            	            logger.info("Deleted old image: {}", localPath);
+		            	        } else {
+		            	            logger.warn("File not found for deletion: {}", localPath);
+		            	        }
+		            	    } catch (Exception e) {
+		            	        logger.warn("Failed to delete image: {}", url, e);
+		            	    }
+		            	}
+		            	existing.setImageUrl(incoming.getImageUrl());
+		            }
+		            existing.setSubtitle(incoming.getSubtitle());
+		            existing.setUpdatedAt(LocalDateTime.now());
+		            blogsToSave.add(existing);
+		        } else {
+		            
+		            incoming.setCreatedAt(LocalDateTime.now());
+		            incoming.setUpdatedAt(LocalDateTime.now());
+		            blogsToSave.add(incoming);
+		        }
+		    }
+		    if (blogsToSave.isEmpty()) {
+		        logger.info("No new or updated blogs to save.");
+		        return Collections.emptyList();
+		    }
+
+		    List<Blog> saved = blogRepository.saveAll(blogsToSave);
+		    logger.info("Saved {} blogs (created/updated)", saved.size());
+
+		    return saved;
         } catch (Exception e) {
-            logger.error("Error while creating blog: {}", e.getMessage());
+            logger.error("Error while creating blog: {}", e);
             throw new RuntimeException("Failed to create blog: " + e.getMessage());
         }
 	}

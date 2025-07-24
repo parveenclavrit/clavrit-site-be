@@ -8,5 +8,7 @@ import com.clavrit.Entity.Project;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
+	
+	boolean existsByTitleIgnoreCase(String title);
 
 }

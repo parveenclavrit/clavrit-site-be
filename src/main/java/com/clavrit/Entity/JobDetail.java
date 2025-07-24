@@ -16,12 +16,13 @@ public class JobDetail {
     
     @ElementCollection
     private List<String> jobResponsibility;
-    
+
     @ElementCollection
     private List<String> jobQualification;
-    
+
     @ElementCollection
     private List<String> competencies;
+
     
     private String jobCategory;
     private String jobType;

@@ -1,6 +1,5 @@
 package com.clavrit.Controller;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -11,9 +10,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,6 +22,7 @@ import com.clavrit.Entity.ClavritService;
 import com.clavrit.Entity.Client;
 import com.clavrit.Entity.JobApplication;
 import com.clavrit.Entity.JobDetail;
+import com.clavrit.Entity.MailRecord;
 import com.clavrit.Entity.PartnerRequest;
 import com.clavrit.Entity.Project;
 import com.clavrit.Entity.Subscriber;
@@ -48,6 +46,9 @@ public class DataImportController {
 
 	@Autowired
 	BlogService blogService;
+	
+	@Autowired
+	ContactService mailService;
 
 	@Autowired
 	ClientService clientService;
@@ -59,7 +60,7 @@ public class DataImportController {
 	JobDetailService detailService;
 
 	@Autowired
-	ContactService contactService;
+	ContactService mailRecordService;
 
 	@Autowired
 	ProjectDetailsService detailsService;
@@ -83,13 +84,13 @@ public class DataImportController {
 			Sheet projectsSheet = workbook.getSheet("Projects");
 			Sheet mailRecordsSheet = workbook.getSheet("MailRecords");
 			Sheet partnerRequestsSheet = workbook.getSheet("PartnerRequests");
-			Sheet jobsSheet = workbook.getSheet("Jobs");
+			Sheet jobsSheet = workbook.getSheet("JobDetails");
 			Sheet subscribersSheet = workbook.getSheet("Subscribers");
 			Sheet applicationsSheet = workbook.getSheet("JobApplications");
 
 			if (servicesSheet != null) {
 				List<ClavritService> services = excelImportService.readServices(servicesSheet);
-
+				
 				resultMap.put("services", services);
 				managementService.createServiceList(services);
 			}
@@ -112,11 +113,11 @@ public class DataImportController {
 				detailsService.saveAllProjects(projects);
 			}
 
-//	        if (mailRecordsSheet != null) {
-//	            List<MailRecord> mails = excelImportService.readMailRecords(mailRecordsSheet);
-//	            resultMap.put("mailRecords", mails);
-//	            mailRecordService.saveAll(mails);
-//	        }
+			if (mailRecordsSheet != null) {
+				List<MailRecord> mails = excelImportService.readMailRecords(mailRecordsSheet);
+	            resultMap.put("mailRecords", mails);
+	            mailRecordService.SaveRecordList(mails);
+	        }
 
 			if (partnerRequestsSheet != null) {
 				List<PartnerRequest> partnerRequests = excelImportService.readPartnerRequests(partnerRequestsSheet);

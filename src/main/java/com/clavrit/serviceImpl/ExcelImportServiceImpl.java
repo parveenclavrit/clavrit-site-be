@@ -3,11 +3,13 @@ package com.clavrit.serviceImpl;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,10 +38,13 @@ public class ExcelImportServiceImpl implements ExcelImportService {
         List<ClavritService> services = new ArrayList<>();
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
             Row row = sheet.getRow(i);
+            if (row == null || isRowEmpty(row)) {
+                continue;
+            }
             ClavritService service = new ClavritService();
-            service.setName(row.getCell(0).getStringCellValue());
-            service.setType(row.getCell(1).getStringCellValue());
-            service.setDescription(row.getCell(2).getStringCellValue());
+            service.setName(getCellValue(row, 0));
+            service.setType(getCellValue(row, 1));
+            service.setDescription(getCellValue(row, 2));
             String imageUrlsRaw = getCellValue(row, 3); 
             List<String> imageUrls = buildFullImageUrls(imageUrlsRaw);
             service.setImageUrl(imageUrls);
@@ -71,8 +76,9 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             String imageUrlsRaw = getCellValue(row, 8); 
             List<String> imageUrls = buildFullImageUrls(imageUrlsRaw);
             blog.setImageUrl(imageUrls);
-            String tags = row.getCell(8).getStringCellValue();                         
-            List<String> tagsList = Arrays.asList(tags.split("\\s*,\\s*"));
+            
+            String tags = row.getCell(9).getStringCellValue();                         
+            List<String> tagsList = new ArrayList<>(Arrays.asList(tags.split("\\s*,\\s*")));
             blog.setTags(tagsList);
             
             // Optional: You can allow overriding createdAt and updatedAt via Excel (cols 10 & 11), or just default to now:
@@ -105,14 +111,14 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 
             // Read technologies as comma-separated
             String techStr = row.getCell(2).getStringCellValue();
-            List<String> technologies = Arrays.asList(techStr.split("\\s*,\\s*"));
+            List<String> technologies = new ArrayList<>(Arrays.asList(techStr.split("\\s*,\\s*")));
             project.setTechnologies(technologies);
 
             // Read keyPoints as comma-separated
             String keyPointsStr = row.getCell(3).getStringCellValue();
-            List<String> keyPoints = Arrays.asList(keyPointsStr.split("\\s*,\\s*"));
+            List<String> keyPoints = new ArrayList<>(Arrays.asList(keyPointsStr.split("\\s*,\\s*")));
             project.setKeyPoints(keyPoints);
-           project.setCreatedAt(LocalDateTime.now());
+            project.setCreatedAt(LocalDateTime.now());
             projects.add(project);
         }
         return projects;
@@ -131,10 +137,18 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             job.setJobDesignation(row.getCell(0).getStringCellValue());
 
             // Comma-separated values for list fields
-            job.setJobResponsibility(Arrays.asList(row.getCell(1).getStringCellValue().split("\\s*,\\s*")));
-            job.setJobQualification(Arrays.asList(row.getCell(2).getStringCellValue().split("\\s*,\\s*")));
-            job.setCompetencies(Arrays.asList(row.getCell(3).getStringCellValue().split("\\s*,\\s*")));
-
+            String JobResponsibilities = row.getCell(1).getStringCellValue();                         
+            List<String> JobResponsibilityList = new ArrayList<>(Arrays.asList(JobResponsibilities.split("\\s*,\\s*")));
+            job.setJobResponsibility(JobResponsibilityList);
+            
+            String jobQualifications = row.getCell(2).getStringCellValue();                         
+            List<String> jobQualificationList = new ArrayList<>(Arrays.asList(jobQualifications.split("\\s*,\\s*")));
+            job.setJobQualification(jobQualificationList);
+            
+            String competencies = row.getCell(3).getStringCellValue();                         
+            List<String> competenciesList = new ArrayList<>(Arrays.asList(competencies.split("\\s*,\\s*")));
+            job.setCompetencies(competenciesList);
+            
             job.setJobCategory(row.getCell(4).getStringCellValue());
             job.setJobType(row.getCell(5).getStringCellValue());
             job.setJobLocation(row.getCell(6).getStringCellValue());
@@ -271,42 +285,57 @@ public class ExcelImportServiceImpl implements ExcelImportService {
     }
 
 
-    private String getCellValue(Row row, int index) {
-        Cell cell = row.getCell(index);
+    private String getCellValue(Row row, int cellIndex) {
+        Cell cell = row.getCell(cellIndex);
+        return getCellValue(cell);
+    }
+
+    private String getCellValue(Cell cell) {
         if (cell == null) return "";
 
         switch (cell.getCellType()) {
             case STRING:
-                return cell.getStringCellValue();
+                return cell.getStringCellValue().trim();
             case NUMERIC:
                 return String.valueOf(cell.getNumericCellValue());
             case BOOLEAN:
                 return String.valueOf(cell.getBooleanCellValue());
             case FORMULA:
                 return cell.getCellFormula();
-            case BLANK:
-            case _NONE:
-            case ERROR:
             default:
                 return "";
         }
     }
+
     
     private List<String> buildFullImageUrls(String cellValue) {
         if (cellValue == null || cellValue.trim().isEmpty()) {
-            return new ArrayList<>();
+        	return Collections.emptyList();
         }
 
-        return Arrays.stream(cellValue.split("\\s*,\\s*"))
+        return new ArrayList<>(Arrays.stream(cellValue.split("\\s*,\\s*"))
+                .map(String::trim)
                 .filter(s -> !s.isEmpty())
-                .map(new Function<String, String>() {
-                    @Override
-                    public String apply(String s) {
-                        return PUBLIC_URL_BASE+"/upload/"+s;
-                    }
-                })
-                .collect(Collectors.toList());
+                .map(s -> PUBLIC_URL_BASE + "/upload/" + s)
+                .collect(Collectors.toList()));
     }
+    private boolean isRowEmpty(Row row) {
+        if (row == null) {
+            return true;
+        }
+
+        for (int c = row.getFirstCellNum(); c < row.getLastCellNum(); c++) {
+            Cell cell = row.getCell(c);
+            if (cell != null && cell.getCellType() != CellType.BLANK) {
+                String value = getCellValue(cell);
+                if (value != null && !value.trim().isEmpty()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
 
 
 }

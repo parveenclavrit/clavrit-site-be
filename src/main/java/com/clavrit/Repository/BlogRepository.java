@@ -7,4 +7,5 @@ import com.clavrit.Entity.Blog;
 @Repository
 public interface BlogRepository extends JpaRepository<Blog, Long>{
 
+	boolean existsByTitleIgnoreCaseAndAuthorNameIgnoreCase(String title, String authorName);
 }

@@ -2,8 +2,13 @@ package com.clavrit.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +35,10 @@ public class JobDetailServiceImpl implements JobDetailService {
 	@Override
 	public JobDetailDTO save(JobDetailDTO dto) {
 		try {
+			if (jobDetailRepository.existsByJobDesignationIgnoreCase(dto.getJobDesignation())) {
+	            log.warn("Duplicate job designation found: {}", dto.getJobDesignation());
+	            throw new RuntimeException("Job with the same designation already exists");
+	        }
             JobDetail entity = jobDetailMapper.toEntity(dto);
             entity.setCreateAt(LocalDateTime.now());
             entity.setUpdatedAt(LocalDateTime.now());
@@ -125,7 +134,54 @@ public class JobDetailServiceImpl implements JobDetailService {
 	@Override
 	public List<JobDetail> saveAllJobs(List<JobDetail> jobs) {
 	    try {
-	        return jobDetailRepository.saveAll(jobs);
+	    	if (jobs == null || jobs.isEmpty()) return Collections.emptyList();
+
+	        List<JobDetail> existingJobs = jobDetailRepository.findAll();
+
+	        Map<String, JobDetail> existingMap = new HashMap<>();
+	        for (JobDetail job : existingJobs) {
+	            existingMap.put(job.getJobDesignation().trim().toLowerCase(), job);
+	        }
+
+	        Set<String> processedDesignations = new HashSet<>();
+	        List<JobDetail> toSave = new ArrayList<>();
+
+	        for (JobDetail incoming : jobs) {
+	            String designationKey = incoming.getJobDesignation().trim().toLowerCase();
+
+	            if (processedDesignations.contains(designationKey)) {
+	                log.warn("Duplicate job in input skipped: {}", incoming.getJobDesignation());
+	                continue;
+	            }
+	            processedDesignations.add(designationKey);
+
+	            if (existingMap.containsKey(designationKey)) {
+	                
+	                JobDetail existing = existingMap.get(designationKey);
+
+	                if (incoming.getJobCategory() != null) existing.setJobCategory(incoming.getJobCategory());
+	                if (incoming.getJobLocation() != null) existing.setJobLocation(incoming.getJobLocation());
+	                if (incoming.getIndustry() != null) existing.setIndustry(incoming.getIndustry());
+	                
+	                existing.setJobResponsibility(incoming.getJobResponsibility());
+	                existing.setJobQualification(incoming.getJobQualification());
+	                existing.setCompetencies(incoming.getCompetencies());
+
+	                if (incoming.getJobType() != null) existing.setJobType(incoming.getJobType());
+
+	                existing.setUpdatedAt(LocalDateTime.now());
+	                toSave.add(existing);
+
+	                log.info("Job updated for designation: {}", existing.getJobDesignation());
+	            } else {
+	            	
+	                incoming.setCreateAt(LocalDateTime.now());
+	                incoming.setUpdatedAt(LocalDateTime.now());
+	                toSave.add(incoming);
+	            }
+	        }
+	        log.info("Job saved+ updated");
+	        return jobDetailRepository.saveAll(toSave);
 	    } catch (Exception e) {
 	        throw new RuntimeException("Failed to save jobs: " + e.getMessage());
 	    }

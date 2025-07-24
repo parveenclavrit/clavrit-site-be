@@ -1,7 +1,13 @@
 package com.clavrit.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +39,14 @@ public class ContactServiceImpl implements ContactService {
 	@Override
 	public String sendMailAndSaveRecord(MailRequestDto request) {
 		try {
+			String email = request.getEmail();
+	        String message = request.getMessage();
+
+	        boolean isDuplicate = repository.existsByEmailAndMessageIgnoreCaseTrim(email, message);
+	        if (isDuplicate) {
+	            logger.warn("Duplicate mail detected for email: {} and message: {}", email, message);
+	            return "Duplicate entry: same email and message already exist.";
+	        }
 	        MailRecord record = mapper.toEntity(request);
 	        record.setSentAt(LocalDateTime.now());
 	        record.setUpdatedAt(LocalDateTime.now());
@@ -55,10 +69,65 @@ public class ContactServiceImpl implements ContactService {
 	public List<MailRecord> SaveRecordList(List<MailRecord> mails) {
 		try {
 
-			repository.saveAll(mails);
-			logger.info("Mail record saved to DB for: {}");
+			if (mails == null || mails.isEmpty()) {
+	            logger.warn("No mail records provided to save or update.");
+	            return Collections.emptyList();
+	        }
 
-			return mails;
+	        List<MailRecord> existingRecords = repository.findAll();
+
+	        Map<String, MailRecord> existingMap = new HashMap<>();
+	        for (MailRecord existing : existingRecords) {
+	            String key = (existing.getEmail().trim().toLowerCase() + "|" + existing.getMessage().trim().toLowerCase());
+	            existingMap.put(key, existing);
+	        }
+
+	        Set<String> processedKeys = new HashSet<>();
+	        List<MailRecord> recordsToSave = new ArrayList<>();
+
+	        for (MailRecord incoming : mails) {
+	            if (incoming.getEmail() == null || incoming.getName() == null) {
+	                logger.warn("Skipping mail record with missing email or name.");
+	                continue;
+	            }
+
+	            String key = (incoming.getEmail().trim().toLowerCase() + "|" + incoming.getMessage().trim().toLowerCase());
+
+	            if (processedKeys.contains(key)) {
+	            	 logger.warn("Duplicate in input skipped: Mail='{}', Message='{}'", incoming.getEmail(), incoming.getMessage());
+	                 continue;
+	            }
+
+	            processedKeys.add(key);
+
+	            if (existingMap.containsKey(key)) {
+	                MailRecord existing = existingMap.get(key);
+
+	                existing.setSubject(incoming.getSubject());
+	                existing.setMessage(incoming.getMessage());
+	                existing.setPhone(incoming.getPhone());
+	                existing.setCompany(incoming.getCompany());
+	                existing.setCountry(incoming.getCountry());
+	                existing.setDestination(incoming.getDestination());
+	                existing.setUpdatedAt(LocalDateTime.now());
+
+	                recordsToSave.add(existing);
+	            } else {
+	                incoming.setSentAt(LocalDateTime.now());
+	                incoming.setUpdatedAt(LocalDateTime.now());
+	                recordsToSave.add(incoming);
+	            }
+	        }
+
+	        if (recordsToSave.isEmpty()) {
+	            logger.info("No new or updated mail records to save.");
+	            return Collections.emptyList();
+	        }
+
+	        List<MailRecord> saved = repository.saveAll(recordsToSave);
+	        logger.info("Saved {} mail records (created/updated)", saved.size());
+
+	        return saved;
 
 		} catch (Exception e) {
 			logger.error("Error sending mail or saving record: {}", e.getMessage());

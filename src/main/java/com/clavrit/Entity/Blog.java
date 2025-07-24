@@ -1,6 +1,7 @@
 package com.clavrit.Entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.ElementCollection;
@@ -125,7 +126,7 @@ public class Blog {
 	}
 
 	public void setImageUrl(List<String> imageUrl) {
-		this.imageUrl = imageUrl;
+	    this.imageUrl = (imageUrl != null) ? new ArrayList<>(imageUrl) : new ArrayList<>();
 	}
 
 	public List<String> getTags() {
@@ -133,7 +134,7 @@ public class Blog {
 	}
 
 	public void setTags(List<String> tags) {
-		this.tags = tags;
+	    this.tags = (tags != null) ? new ArrayList<>(tags) : new ArrayList<>();
 	}
 
 	public LocalDateTime getCreatedAt() {

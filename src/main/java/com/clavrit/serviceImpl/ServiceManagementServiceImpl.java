@@ -5,6 +5,9 @@ import com.clavrit.Entity.ClavritService;
 import com.clavrit.Repository.ServiceRepository;
 import com.clavrit.Service.ServiceManagementService;
 import com.clavrit.mapper.ServiceMapper;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,12 +16,19 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
 public class ServiceManagementServiceImpl implements ServiceManagementService {
+	
+	Logger log=LoggerFactory.getLogger(ServiceManagementServiceImpl.class);
 
     @Autowired
     private ServiceRepository serviceRepo;
@@ -39,6 +49,13 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
     public ClavritService createService(ServiceDto dto, List<MultipartFile> files) {
         try {
             ClavritService entity = mapper.toEntity(dto);
+            
+            Optional<ClavritService> existing = serviceRepo.findByNameAndDescription(entity.getName(), entity.getDescription());
+
+            if (existing.isPresent()) {
+                throw new RuntimeException("Duplicate service: A service with the same name and description already exists.");
+            }
+            
             List<String> imageUrls = saveImages(files);
             entity.setImageUrl(imageUrls);
             return serviceRepo.save(entity);
@@ -50,8 +67,48 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
     @Override
     public List<ClavritService> createServiceList(List<ClavritService> services) {
         try {
-            List<ClavritService> service =  serviceRepo.saveAll(services);
-             return service;
+        	if (services == null || services.isEmpty()) return Collections.emptyList();
+
+            List<ClavritService> existingServices = serviceRepo.findAll();
+
+            Map<String, ClavritService> existingMap = new HashMap<>();
+            for (ClavritService existing : existingServices) {
+                String key = (existing.getName().toLowerCase() + "|" + existing.getDescription().toLowerCase()).trim();
+                existingMap.put(key, existing);
+            }
+
+            Set<String> processedKeys = new HashSet<>();
+            List<ClavritService> servicesToSave = new ArrayList<>();
+
+            for (ClavritService incoming : services) {
+                String key = (incoming.getName().toLowerCase() + "|" + incoming.getDescription().toLowerCase()).trim();
+
+                if (processedKeys.contains(key)) {
+                    log.warn("Duplicate service found in input list. Skipping: {}", incoming.getName());
+                    continue;
+                }
+
+                processedKeys.add(key);
+
+                if (existingMap.containsKey(key)) {
+                    // Update existing service
+                    ClavritService existing = existingMap.get(key);
+
+                    if (incoming.getType() != null) existing.setType(incoming.getType());
+                    if (incoming.getImageUrl() != null && !incoming.getImageUrl().isEmpty()) {
+                        existing.setImageUrl(incoming.getImageUrl());
+                    }
+
+                    servicesToSave.add(existing);
+                } else {
+                	
+                    servicesToSave.add(incoming);
+                }
+            }
+
+            List<ClavritService> saved = serviceRepo.saveAll(servicesToSave);
+            log.info("Saved {} services (updated/created)", saved.size());
+            return saved;
         } catch (Exception e) {
             throw new RuntimeException("Failed to create services: " + e.getMessage(), e);
         }

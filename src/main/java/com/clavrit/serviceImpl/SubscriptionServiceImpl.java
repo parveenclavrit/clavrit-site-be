@@ -1,7 +1,10 @@
 package com.clavrit.serviceImpl;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,7 +88,40 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	@Override
 	public List<Subscriber> saveAllSubscribers(List<Subscriber> subscribers) {
 	    try {
-	        return subscriberRepository.saveAll(subscribers);
+	    	if (subscribers == null || subscribers.isEmpty()) return List.of();
+
+	        List<Subscriber> existingSubscribers = subscriberRepository.findAll();
+
+	        Set<String> existingEmails = new HashSet<>();
+	        for (Subscriber sub : existingSubscribers) {
+	            existingEmails.add(sub.getEmail().trim().toLowerCase());
+	        }
+
+	        Set<String> seenEmails = new HashSet<>();
+	        List<Subscriber> newSubscribers = new ArrayList<>();
+
+	        for (Subscriber incoming : subscribers) {
+	            String emailKey = incoming.getEmail().trim().toLowerCase();
+
+	            if (existingEmails.contains(emailKey) || seenEmails.contains(emailKey)) {
+	                log.warn("Duplicate or already subscribed email skipped: {}", incoming.getEmail());
+	                continue;
+	            }
+
+	            seenEmails.add(emailKey);
+	            incoming.setSubscribedAt(LocalDateTime.now());
+	            newSubscribers.add(incoming);
+	        }
+
+	        List<Subscriber> saved = subscriberRepository.saveAll(newSubscribers);
+
+	        for (Subscriber s : saved) {
+	            sendThankYouEmail(s.getEmail());
+	        }
+
+	        log.info("Saved {} new subscribers (after removing existing/duplicate entries)", saved.size());
+	        return saved;
+	        
 	    } catch (Exception e) {
 	        throw new RuntimeException("Failed to save subscribers: " + e.getMessage());
 	    }

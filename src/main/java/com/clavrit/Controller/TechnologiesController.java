@@ -28,6 +28,9 @@ public class TechnologiesController {
     @PostMapping
     public ApisResponse createTechnology(@RequestPart("image") MultipartFile file) {
         try {
+        	if (file == null || file.isEmpty()) {
+                return new ApisResponse(ApiStatus.BAD_REQUEST, "Image is required", null);
+            }
             TechnologiesResponse response = technologiesService.save(file);
             return new ApisResponse(ApiStatus.CREATED, "Technology created successfully", response);
         } catch (Exception e) {
@@ -38,6 +41,9 @@ public class TechnologiesController {
     @PutMapping("/{id}")
     public ApisResponse updateTechnology(@PathVariable Long id, @RequestPart("image") MultipartFile file) {
         try {
+        	if (file == null || file.isEmpty()) {
+                return new ApisResponse(ApiStatus.BAD_REQUEST, "Image is required", null);
+            }
             TechnologiesResponse response = technologiesService.update(id, file);
             return new ApisResponse(ApiStatus.OK, "Technology updated successfully", response);
         } catch (Exception e) {

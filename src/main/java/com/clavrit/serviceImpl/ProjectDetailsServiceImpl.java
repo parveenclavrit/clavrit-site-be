@@ -3,8 +3,12 @@ package com.clavrit.serviceImpl;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -43,6 +47,13 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
     @Override
     public ProjectDto createProjectDetails(ProjectDto projectDto, List<MultipartFile> images) {
         try {
+        	
+        	boolean exists = projectRepository.existsByTitleIgnoreCase(projectDto.getTitle());
+            if (exists) {
+                log.warn("Duplicate project detected with title: {}", projectDto.getTitle());
+                throw new RuntimeException("Project already exists with the same title.");
+            }
+            
             Project project = projectMapper.toEntity(projectDto);
             if (images != null && !images.isEmpty()) {
                 List<String> imageUrls = saveUploadedFiles(images);
@@ -179,7 +190,69 @@ public class ProjectDetailsServiceImpl implements ProjectDetailsService {
     @Override
     public List<Project> saveAllProjects(List<Project> projects) {
         try {
-            return projectRepository.saveAll(projects);
+        	if (projects == null || projects.isEmpty()) return new ArrayList<>();
+
+            // Fetch all existing projects
+            List<Project> existingProjects = projectRepository.findAll();
+            Map<String, Project> existingMap = new HashMap<>();
+            for (Project existing : existingProjects) {
+                existingMap.put(existing.getTitle().toLowerCase().trim(), existing);
+            }
+
+            Set<String> seenTitles = new HashSet<>();
+            List<Project> toSave = new ArrayList<>();
+
+            for (Project incoming : projects) {
+                if (incoming.getTitle() == null) continue;
+
+                String titleKey = incoming.getTitle().toLowerCase().trim();
+
+                
+                if (seenTitles.contains(titleKey)) {
+                    log.warn("Duplicate in input list skipped: {}", incoming.getTitle());
+                    continue;
+                }
+                seenTitles.add(titleKey);
+
+                if (existingMap.containsKey(titleKey)) {
+                    Project existing = existingMap.get(titleKey);
+
+                    existing.setSummary(incoming.getSummary());
+                    existing.setTechnologies(incoming.getTechnologies());
+                    existing.setKeyPoints(incoming.getKeyPoints());
+                    if (existing.getImageUrl() != null && !existing.getImageUrl().isEmpty()) {
+                        for (String imageUrl : existing.getImageUrl()) {
+                            try {
+                                // Convert public URL to local file path
+                                String localPath = imageUrl.replace(PUBLIC_URL_BASE, LOCAL_BASE_PATH);
+                                File oldFile = new File(localPath);
+                                if (oldFile.exists()) {
+                                    boolean deleted = oldFile.delete();
+                                    log.info("Old image deleted: {} -> {}", localPath, deleted);
+                                }
+                            } catch (Exception ex) {
+                                log.warn("Failed to delete image: {}", imageUrl, ex);
+                                throw new RuntimeException("Failed to update project: " + ex.getMessage());
+                            }
+                        }
+                    existing.setImageUrl(incoming.getImageUrl());
+                    }
+
+                    existing.setUpdatedAt(LocalDateTime.now());
+
+                    toSave.add(existing);
+                    log.info("Project updated: {}", existing.getTitle());
+                } else {
+                    incoming.setCreatedAt(LocalDateTime.now());
+                    incoming.setUpdatedAt(LocalDateTime.now());
+                    toSave.add(incoming);
+                    log.info("New project added: {}", incoming.getTitle());
+                }
+            }
+
+            List<Project> saved = projectRepository.saveAll(toSave);
+            log.info("{} projects (new + updated) saved successfully.", saved.size());
+            return saved;
         } catch (Exception e) {
             throw new RuntimeException("Failed to save projects: " + e.getMessage());
         }

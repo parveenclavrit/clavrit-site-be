@@ -1,7 +1,12 @@
 package com.clavrit.serviceImpl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +42,10 @@ public class PartnerRequestServiceImpl implements PartnerRequestService{
 	@Override
 	public PartnerRequestDto createRequest(PartnerRequestDto dto) {
 		try {
+			if (repository.existsByCompanyNameIgnoreCaseAndEmailIgnoreCase(dto.getCompanyName(), dto.getEmail())) {
+				
+	            throw new RuntimeException("Duplicate partner request already exists for this company and email.");
+	        }
 			PartnerRequest entity = mapper.toEntity(dto);
 			PartnerRequest saved = repository.save(entity);
 			log.info("Partner request created by {}", saved.getEmail());
@@ -67,7 +76,7 @@ public class PartnerRequestServiceImpl implements PartnerRequestService{
 	public List<PartnerRequestDto> getAllRequests() {
 		try {
 	        List<PartnerRequest> entities = repository.findAll();
-	        List<PartnerRequestDto> dtos = new java.util.ArrayList<>();
+	        List<PartnerRequestDto> dtos = new ArrayList<>();
 
 	        for (PartnerRequest entity : entities) {
 	            PartnerRequestDto dto = mapper.toDto(entity);
@@ -154,7 +163,47 @@ public class PartnerRequestServiceImpl implements PartnerRequestService{
 	@Override
 	public List<PartnerRequest> saveAllPartnerRequests(List<PartnerRequest> requests) {
 	    try {
-	        return repository.saveAll(requests);
+	    	if (requests == null || requests.isEmpty()) return new ArrayList<>();
+
+	        List<PartnerRequest> existingRequests = repository.findAll();
+	        
+	        Map<String, PartnerRequest> existingMap = new HashMap<>();
+	        for (PartnerRequest existing : existingRequests) {
+	            String key = (existing.getCompanyName() + "|" + existing.getEmail()).toLowerCase().trim();
+	            existingMap.put(key, existing);
+	        }
+
+	        Set<String> seenKeys = new HashSet<>();
+	        List<PartnerRequest> toSave = new ArrayList<>();
+
+	        for (PartnerRequest incoming : requests) {
+	            String key = (incoming.getCompanyName() + "|" + incoming.getEmail()).toLowerCase().trim();
+
+	            if (seenKeys.contains(key)) {
+	                log.warn("Duplicate in incoming list skipped for: {}", key);
+	                continue;
+	            }
+	            seenKeys.add(key);
+
+	            if (existingMap.containsKey(key)) {
+	                PartnerRequest existing = existingMap.get(key);
+
+	                existing.setFullName(incoming.getFullName());
+	                existing.setPhone(incoming.getPhone());
+	                existing.setMessage(incoming.getMessage());
+	                existing.setSubmittedAt(incoming.getSubmittedAt() != null ? incoming.getSubmittedAt() : existing.getSubmittedAt());
+
+	                toSave.add(existing);
+	                log.info("Updated partner request for: {}", key);
+	            } else {
+	                toSave.add(incoming);
+	                log.info("New partner request added for: {}", key);
+	            }
+	        }
+
+	        List<PartnerRequest> saved = repository.saveAll(toSave);
+	        log.info("Successfully saved {} partner requests (new + updated)", saved.size());
+	        return saved;
 	    } catch (Exception e) {
 	        throw new RuntimeException("Failed to save partner requests: " + e.getMessage());
 	    }

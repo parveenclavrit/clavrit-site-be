@@ -3,8 +3,12 @@ package com.clavrit.serviceImpl;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.slf4j.Logger;
@@ -40,6 +44,13 @@ public class ClientServiceImpl implements ClientService {
     @Override
     public ClientDTO createClient(ClientDTO clientDTO, MultipartFile logoFile) {
         try {
+        	boolean exists = clientRepository.existsByCompanyIgnoreCaseAndEmailIgnoreCase(clientDTO.getCompany(), clientDTO.getEmail());
+
+            if (exists) {
+                log.info("Duplicate client detected: {} ({})", clientDTO.getCompany(), clientDTO.getEmail());
+                throw new RuntimeException("Client already exists with the same company and email.");
+            }
+            
             Client client = ClientMapper.toEntity(clientDTO);
 
             if (logoFile != null && !logoFile.isEmpty()) {
@@ -62,10 +73,49 @@ public class ClientServiceImpl implements ClientService {
 	@Override
 	public List<Client> createClientList(List<Client> clients) {
 		try {
+			if (clients == null || clients.isEmpty()) return new ArrayList<>();
 
-			List<Client> saved = clientRepository.saveAll(clients);
-			// log.info("Client created successfully with ID: {}",));
-			return saved;
+	        List<Client> existingClients = clientRepository.findAll();
+
+	        Map<String, Client> existingMap = new HashMap<>();
+	        for (Client existing : existingClients) {
+	            String key = (existing.getCompany().toLowerCase() + "|" + existing.getEmail().toLowerCase()).trim();
+	            existingMap.put(key, existing);
+	        }
+
+	        Set<String> processedKeys = new HashSet<>();
+	        List<Client> clientsToSave = new ArrayList<>();
+
+	        for (Client incoming : clients) {
+	            if (incoming.getCompany() == null || incoming.getEmail() == null) continue;
+
+	            String key = (incoming.getCompany().toLowerCase() + "|" + incoming.getEmail().toLowerCase()).trim();
+
+	            if (processedKeys.contains(key)) {
+	                log.warn("Duplicate client in input skipped: {} ({})", incoming.getCompany(), incoming.getEmail());
+	                continue;
+	            }
+	            processedKeys.add(key);
+
+	            if (existingMap.containsKey(key)) {
+	                Client existing = existingMap.get(key);
+
+	                if (incoming.getName() != null) existing.setName(incoming.getName());
+	                if (incoming.getPhone() != null) existing.setPhone(incoming.getPhone());
+	                if (incoming.getLogoImage() != null && !incoming.getLogoImage().isEmpty()) {
+	                    existing.setLogoImage(incoming.getLogoImage());
+	                }
+	                clientsToSave.add(existing);
+	            } else {
+	            	
+	                incoming.setCreatedAt(LocalDateTime.now());
+	                clientsToSave.add(incoming);
+	            }
+	        }
+
+	        List<Client> saved = clientRepository.saveAll(clientsToSave);
+	        log.info("Saved {} clients (new + updated)", saved.size());
+	        return saved;
 
 		} catch (Exception e) {
 			log.error("Error while creating client: {}", e.getMessage());
