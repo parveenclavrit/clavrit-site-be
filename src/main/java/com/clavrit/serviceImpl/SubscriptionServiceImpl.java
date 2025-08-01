@@ -2,6 +2,7 @@ package com.clavrit.serviceImpl;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -88,7 +89,7 @@ public class SubscriptionServiceImpl implements SubscriptionService {
 	@Override
 	public List<Subscriber> saveAllSubscribers(List<Subscriber> subscribers) {
 	    try {
-	    	if (subscribers == null || subscribers.isEmpty()) return List.of();
+	    	if (subscribers == null || subscribers.isEmpty()) return Arrays.asList();
 
 	        List<Subscriber> existingSubscribers = subscriberRepository.findAll();
 
