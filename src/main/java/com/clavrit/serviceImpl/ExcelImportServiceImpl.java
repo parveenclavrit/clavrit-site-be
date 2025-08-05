@@ -34,25 +34,34 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 	 @Value("${PUBLIC_URL_BASE}")
 	    private String PUBLIC_URL_BASE;
 
-    @Override
-    public List<ClavritService> readServices(Sheet sheet) {
-        List<ClavritService> services = new ArrayList<>();
-        for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-            Row row = sheet.getRow(i);
-            if (row == null || isRowEmpty(row)) {
-                continue;
-            }
-            ClavritService service = new ClavritService();
-            service.setName(getCellValue(row, 0));
-            service.setType(getCellValue(row, 1));
-            service.setDescription(getCellValue(row, 2));
-            String imageUrlsRaw = getCellValue(row, 3); 
-            List<String> imageUrls = buildFullImageUrls(imageUrlsRaw);
-            service.setImageUrl(imageUrls);
-            services.add(service);
-        }
-        return services;
-    }
+	 @Override
+	 public List<ClavritService> readServices(Sheet sheet) {
+	     List<ClavritService> services = new ArrayList<>();
+
+	     for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+	         Row row = sheet.getRow(i);
+	         if (row == null || isRowEmpty(row)) {
+	             continue;
+	         }
+
+	         ClavritService service = new ClavritService();
+
+	         service.setTitle(getCellValue(row, 0));
+	         service.setImg(getCellValue(row, 1));
+	         service.setSubheading(getCellValue(row, 2));
+	         service.setDescription(getCellValue(row, 3));
+	         service.setContent(getCellValue(row, 4));
+
+	         String imageUrlsRaw = getCellValue(row, 5);  // comma-separated string
+	         List<String> imageUrls = buildFullImageUrls(imageUrlsRaw);
+	         service.setImageUrls(imageUrls);
+
+	         services.add(service);
+	     }
+
+	     return services;
+	 }
+
 
     @Override
     public List<Blog> readBlogs(Sheet sheet) {

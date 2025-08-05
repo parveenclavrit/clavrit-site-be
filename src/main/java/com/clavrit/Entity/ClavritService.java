@@ -18,66 +18,87 @@ import javax.persistence.Table;
 @Table(name = "services")
 public class ClavritService {
 
-	    @Id
+	 @Id
 	    @GeneratedValue(strategy = GenerationType.IDENTITY)
 	    private Long id;
 
-	    private String name;
-	    private String type;
+	    private String title;         // e.g., "Salesforce"
+	    private String img;           // e.g., "./assets/img/sf.jpg"
+	    private String subheading;    // e.g., "Supercharge Your CRM..."
 
 	    @Lob
+	    @Column(columnDefinition = "TEXT")
 	    private String description;
 
+	    @Lob
+	    @Column(columnDefinition = "TEXT")
+	    private String content;
+
 	    @ElementCollection
-	    @CollectionTable(name = "service_images", joinColumns =  @JoinColumn(name = "service_id"))
+	    @CollectionTable(name = "service_images", joinColumns = @JoinColumn(name = "service_id"))
 	    @Column(name = "image_url")
-	    private List<String> imageUrl = new ArrayList<>();
+	    private List<String> imageUrls = new ArrayList<>();
 
-		public Long getId() {
-			return id;
+	    // Getters and setters
+	    public Long getId() {
+	        return id;
+	    }
+
+	    public void setId(Long id) {
+	        this.id = id;
+	    }
+
+	    public String getTitle() {
+	        return title;
+	    }
+
+	    public void setTitle(String title) {
+	        this.title = title;
+	    }
+
+	    public String getImg() {
+	        return img;
+	    }
+
+	    public void setImg(String img) {
+	        this.img = img;
+	    }
+
+	    public String getSubheading() {
+	        return subheading;
+	    }
+
+	    public void setSubheading(String subheading) {
+	        this.subheading = subheading;
+	    }
+
+	    public String getDescription() {
+	        return description;
+	    }
+
+	    public void setDescription(String description) {
+	        this.description = description;
+	    }
+
+	    public String getContent() {
+	        return content;
+	    }
+
+	    public void setContent(String content) {
+	        this.content = content;
+	    }
+
+	    public List<String> getImageUrls() {
+	        return imageUrls;
+	    }
+
+	    public void setImageUrls(List<String> imageUrls) {
+	        this.imageUrls = imageUrls;
+	    }
+
+		public ClavritService() {
+			super();
+			// TODO Auto-generated constructor stub
 		}
-
-		public void setId(Long id) {
-			this.id = id;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public void setName(String name) {
-			this.name = name;
-		}
-
-		public String getType() {
-			return type;
-		}
-
-		public void setType(String type) {
-			this.type = type;
-		}
-
-		public String getDescription() {
-			return description;
-		}
-
-		public void setDescription(String description) {
-			this.description = description;
-		}
-
-		public List<String> getImageUrl() {
-			return imageUrl;
-		}
-
-		public void setImageUrl(List<String> imageUrl) {
-			this.imageUrl = imageUrl;
-		}
-
-
-	public ClavritService() {
-		super();
+	    
 	}
-	
-	
-
-}

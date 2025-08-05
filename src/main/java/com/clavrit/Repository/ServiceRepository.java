@@ -10,6 +10,8 @@ import com.clavrit.Entity.ClavritService;
 @Repository
 public interface ServiceRepository extends JpaRepository<ClavritService, Long> {
 	
-	Optional<ClavritService> findByNameAndDescription(String name, String description);
+//	Optional<ClavritService> findByNameAndDescription(String name, String description);
+	Optional<ClavritService> findByTitleAndDescription(String title, String description);
+	
 
 }

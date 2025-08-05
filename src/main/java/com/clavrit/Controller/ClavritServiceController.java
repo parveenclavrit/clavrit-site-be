@@ -33,16 +33,18 @@ public class ClavritServiceController {
 
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ApisResponse createService(
-	        @RequestParam("name") String serviceName,
-	        @RequestParam("type") String serviceType,
-	        @RequestParam("description") String serviceDescription,
+	        @RequestParam("title") String title,
+	        @RequestParam("subheading") String subheading,
+	        @RequestParam("description") String description,
+	        @RequestParam("content") String content,
 	        @RequestPart("images") List<MultipartFile> files) {
 	    try {
 	        // Build DTO manually
 	        ServiceDto dto = new ServiceDto();
-	        dto.setName(serviceName);
-	        dto.setType(serviceType);
-	        dto.setDescription(serviceDescription);
+	        dto.setTitle(title);
+	        dto.setSubheading(subheading);
+	        dto.setDescription(description);
+	        dto.setContent(content);
 
 	        ClavritService createdService = serviceService.createService(dto, files);
 	        return new ApisResponse(ApiStatus.CREATED, "Service created successfully", createdService);
@@ -79,15 +81,17 @@ public class ClavritServiceController {
 	@PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ApisResponse updateService(
 	        @PathVariable Long id,
-	        @RequestParam("name") String name,
-	        @RequestParam("type") String type,
+	        @RequestParam("title") String title,
+	        @RequestParam("subheading") String subheading,
 	        @RequestParam("description") String description,
+	        @RequestParam("content") String content,
 	        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
 	    try {
 	        ServiceDto dto = new ServiceDto();
-	        dto.setName(name);
-	        dto.setType(type);
+	        dto.setTitle(title);
+	        dto.setSubheading(subheading);
 	        dto.setDescription(description);
+	        dto.setContent(content);
 
 	        ClavritService updated = serviceService.updateService(id, dto, images);
 	        return new ApisResponse(ApiStatus.OK, "Service updated successfully", updated);
@@ -95,6 +99,7 @@ public class ClavritServiceController {
 	        return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error updating service", e.getMessage());
 	    }
 	}
+
 
 
 

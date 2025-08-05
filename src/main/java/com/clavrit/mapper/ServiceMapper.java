@@ -14,10 +14,12 @@ public class ServiceMapper {
         if (dto == null) return null;
 
         ClavritService entity = new ClavritService();
-        entity.setName(dto.getName());
-        entity.setType(dto.getType());
+        entity.setTitle(dto.getTitle());
+        entity.setImg(dto.getImg());
+        entity.setSubheading(dto.getSubheading());
         entity.setDescription(dto.getDescription());
-        entity.setImageUrl(dto.getImageUrl() != null ? new ArrayList<>(dto.getImageUrl()) : new ArrayList<>());
+        entity.setContent(dto.getContent());
+        entity.setImageUrls(dto.getImageUrls() != null ? new ArrayList<>(dto.getImageUrls()) : new ArrayList<>());
 
         return entity;
     }
@@ -26,12 +28,13 @@ public class ServiceMapper {
         if (entity == null) return null;
 
         ServiceDto dto = new ServiceDto();
-        dto.setName(entity.getName());
-        dto.setType(entity.getType());
+        dto.setTitle(entity.getTitle());
+        dto.setImg(entity.getImg());
+        dto.setSubheading(entity.getSubheading());
         dto.setDescription(entity.getDescription());
-        dto.setImageUrl(entity.getImageUrl() != null ? new ArrayList<>(entity.getImageUrl()) : new ArrayList<>());
+        dto.setContent(entity.getContent());
+        dto.setImageUrls(entity.getImageUrls() != null ? new ArrayList<>(entity.getImageUrls()) : new ArrayList<>());
 
         return dto;
     }
 }
-

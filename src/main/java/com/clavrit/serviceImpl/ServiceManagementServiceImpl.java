@@ -49,31 +49,36 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
     public ClavritService createService(ServiceDto dto, List<MultipartFile> files) {
         try {
             ClavritService entity = mapper.toEntity(dto);
-            
-            Optional<ClavritService> existing = serviceRepo.findByNameAndDescription(entity.getName(), entity.getDescription());
+
+            // Check for existing service by title and description
+            Optional<ClavritService> existing = serviceRepo.findByTitleAndDescription(
+                entity.getTitle(), entity.getDescription());
 
             if (existing.isPresent()) {
-                throw new RuntimeException("Duplicate service: A service with the same name and description already exists.");
+                throw new RuntimeException("Duplicate service: A service with the same title and description already exists.");
             }
-            
+
+            // Save image files and set URLs
             List<String> imageUrls = saveImages(files);
-            entity.setImageUrl(imageUrls);
+            entity.setImageUrls(imageUrls); // updated field name
+
             return serviceRepo.save(entity);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to create service: " + e.getMessage());
+            throw new RuntimeException("Failed to create service: " + e.getMessage(), e);
         }
     }
+
     
     @Override
     public List<ClavritService> createServiceList(List<ClavritService> services) {
         try {
-        	if (services == null || services.isEmpty()) return Collections.emptyList();
+            if (services == null || services.isEmpty()) return Collections.emptyList();
 
             List<ClavritService> existingServices = serviceRepo.findAll();
 
             Map<String, ClavritService> existingMap = new HashMap<>();
             for (ClavritService existing : existingServices) {
-                String key = (existing.getName().toLowerCase() + "|" + existing.getDescription().toLowerCase()).trim();
+                String key = (existing.getTitle() + "|" + existing.getDescription()).toLowerCase().trim();
                 existingMap.put(key, existing);
             }
 
@@ -81,38 +86,41 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
             List<ClavritService> servicesToSave = new ArrayList<>();
 
             for (ClavritService incoming : services) {
-                String key = (incoming.getName().toLowerCase() + "|" + incoming.getDescription().toLowerCase()).trim();
+                String key = (incoming.getTitle() + "|" + incoming.getDescription()).toLowerCase().trim();
 
                 if (processedKeys.contains(key)) {
-                    log.warn("Duplicate service found in input list. Skipping: {}", incoming.getName());
+                    log.warn("Duplicate service found in input list. Skipping: {}", incoming.getTitle());
                     continue;
                 }
 
                 processedKeys.add(key);
 
                 if (existingMap.containsKey(key)) {
-                    // Update existing service
                     ClavritService existing = existingMap.get(key);
 
-                    if (incoming.getType() != null) existing.setType(incoming.getType());
-                    if (incoming.getImageUrl() != null && !incoming.getImageUrl().isEmpty()) {
-                        existing.setImageUrl(incoming.getImageUrl());
+                    // Update existing fields only if incoming has new non-null values
+                    if (incoming.getImg() != null) existing.setImg(incoming.getImg());
+                    if (incoming.getSubheading() != null) existing.setSubheading(incoming.getSubheading());
+                    if (incoming.getContent() != null) existing.setContent(incoming.getContent());
+                    if (incoming.getImageUrls() != null && !incoming.getImageUrls().isEmpty()) {
+                        existing.setImageUrls(incoming.getImageUrls());
                     }
 
                     servicesToSave.add(existing);
                 } else {
-                	
                     servicesToSave.add(incoming);
                 }
             }
 
             List<ClavritService> saved = serviceRepo.saveAll(servicesToSave);
-            log.info("Saved {} services (updated/created)", saved.size());
+            log.info("Saved {} services (created/updated)", saved.size());
             return saved;
+
         } catch (Exception e) {
             throw new RuntimeException("Failed to create services: " + e.getMessage(), e);
         }
     }
+
 
 
     @Override
@@ -135,47 +143,36 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
 
             ClavritService service = optionalService.get();
 
-            // Update only non-null fields (partial update)
-            service.setName(dto.getName() != null ? dto.getName() : service.getName());
-            service.setType(dto.getType() != null ? dto.getType() : service.getType());
+            // Partial update of fields
+            service.setTitle(dto.getTitle() != null ? dto.getTitle() : service.getTitle());
+            service.setSubheading(dto.getSubheading() != null ? dto.getSubheading() : service.getSubheading());
             service.setDescription(dto.getDescription() != null ? dto.getDescription() : service.getDescription());
+            service.setContent(dto.getContent() != null ? dto.getContent() : service.getContent());
 
-            // Handle image update
-            if (images!= null && !images.isEmpty()) {
-                List<String> existingImages = service.getImageUrl();
+            // Update images if new ones are provided
+            if (images != null && !images.isEmpty()) {
+                List<String> existingImages = service.getImageUrls();
                 if (existingImages != null && !existingImages.isEmpty()) {
                     for (String url : existingImages) {
                         try {
-                            // Convert public URL to local file path
                             String localPath = url.replace(PUBLIC_URL_BASE, LOCAL_URL_BASE);
-
                             File file = new File(localPath);
                             if (file.exists()) {
                                 file.delete();
-//                                logger.info("Deleted old image: {}", localPath);
-                            } else {
-//                                logger.warn("File not found for deletion: {}", localPath);
                             }
                         } catch (Exception e) {
-//                            logger.warn("Failed to delete image: {}", url, e);
+                            // Log if needed
                         }
                     }
                 }
 
-                // Save new images
                 List<String> imageUrls = saveImages(images);
-                service.setImageUrl(imageUrls);
+                service.setImageUrls(imageUrls);
             }
 
-            
-
-            ClavritService updated = serviceRepo.save(service);
-//            logger.info("Service with ID {} updated successfully.", id);
-
-            return updated;
+            return serviceRepo.save(service);
 
         } catch (Exception e) {
-//            logger.error("Error updating service with ID {}: {}", id, e.getMessage());
             throw new RuntimeException("Failed to update service: " + e.getMessage());
         }
     }

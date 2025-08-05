@@ -116,15 +116,20 @@ public class DataExportServiceImpl {
 	private void populateServicesSheet(Workbook workbook, List<ClavritService> services) {
 	    Sheet sheet = workbook.getSheet("Services");
 	    int rowNum = 1;
+
 	    for (ClavritService service : services) {
 	        Row row = sheet.createRow(rowNum++);
 	        int col = 0;
-	        row.createCell(col++).setCellValue(service.getName());
-	        row.createCell(col++).setCellValue(service.getType());
+
+	        row.createCell(col++).setCellValue(service.getTitle());
+	        row.createCell(col++).setCellValue(service.getImg());
+	        row.createCell(col++).setCellValue(service.getSubheading());
 	        row.createCell(col++).setCellValue(service.getDescription());
-	        row.createCell(col++).setCellValue(String.join(", ", service.getImageUrl()));
+	        row.createCell(col++).setCellValue(service.getContent());
+	        row.createCell(col++).setCellValue(String.join(", ", service.getImageUrls()));
 	    }
 	}
+
 
 	private void populateBlogsSheet(Workbook workbook, List<Blog> blogs) {
 	    Sheet sheet = workbook.getSheet("Blogs");
