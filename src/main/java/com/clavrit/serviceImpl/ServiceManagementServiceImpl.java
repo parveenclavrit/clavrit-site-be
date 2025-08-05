@@ -98,10 +98,10 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
                 if (existingMap.containsKey(key)) {
                     ClavritService existing = existingMap.get(key);
 
-                    // Update existing fields only if incoming has new non-null values
-                    if (incoming.getImg() != null) existing.setImg(incoming.getImg());
+                    
                     if (incoming.getSubheading() != null) existing.setSubheading(incoming.getSubheading());
                     if (incoming.getContent() != null) existing.setContent(incoming.getContent());
+                    if (incoming.getCategory() != null) existing.setCategory(incoming.getCategory()); 
                     if (incoming.getImageUrls() != null && !incoming.getImageUrls().isEmpty()) {
                         existing.setImageUrls(incoming.getImageUrls());
                     }
@@ -148,6 +148,7 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
             service.setSubheading(dto.getSubheading() != null ? dto.getSubheading() : service.getSubheading());
             service.setDescription(dto.getDescription() != null ? dto.getDescription() : service.getDescription());
             service.setContent(dto.getContent() != null ? dto.getContent() : service.getContent());
+            service.setCategory(dto.getCategory() != null ? dto.getCategory() : service.getCategory());
 
             // Update images if new ones are provided
             if (images != null && !images.isEmpty()) {
@@ -182,6 +183,20 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
     public void deleteService(Long id) {
         serviceRepo.deleteById(id);
     }
+    
+    @Override
+    public List<ClavritService> getServicesByCategory(String category){
+    	try {
+            if (category == null || category.trim().isEmpty()) {
+                throw new IllegalArgumentException("Category must not be null or empty.");
+            }
+            return serviceRepo.findByCategoryIgnoreCase(category.trim());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve services by category: " + e.getMessage(), e);
+        }
+    }
+
+    
 
     /**
      * Saves the uploaded image files to disk and returns a list of public URLs.

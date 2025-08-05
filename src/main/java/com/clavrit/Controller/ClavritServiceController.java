@@ -35,6 +35,7 @@ public class ClavritServiceController {
 	public ApisResponse createService(
 	        @RequestParam("title") String title,
 	        @RequestParam("subheading") String subheading,
+	        @RequestParam("category") String category,
 	        @RequestParam("description") String description,
 	        @RequestParam("content") String content,
 	        @RequestPart("images") List<MultipartFile> files) {
@@ -43,6 +44,7 @@ public class ClavritServiceController {
 	        ServiceDto dto = new ServiceDto();
 	        dto.setTitle(title);
 	        dto.setSubheading(subheading);
+	        dto.setCategory(category);
 	        dto.setDescription(description);
 	        dto.setContent(content);
 
@@ -83,6 +85,7 @@ public class ClavritServiceController {
 	        @PathVariable Long id,
 	        @RequestParam("title") String title,
 	        @RequestParam("subheading") String subheading,
+	        @RequestParam("category") String category,
 	        @RequestParam("description") String description,
 	        @RequestParam("content") String content,
 	        @RequestPart(value = "images", required = false) List<MultipartFile> images) {
@@ -90,6 +93,7 @@ public class ClavritServiceController {
 	        ServiceDto dto = new ServiceDto();
 	        dto.setTitle(title);
 	        dto.setSubheading(subheading);
+	        dto.setCategory(category);
 	        dto.setDescription(description);
 	        dto.setContent(content);
 
@@ -101,9 +105,6 @@ public class ClavritServiceController {
 	}
 
 
-
-
-
 	@DeleteMapping("/{id}")
 	public ApisResponse deleteService(@PathVariable Long id) {
 	    try {
@@ -113,5 +114,15 @@ public class ClavritServiceController {
 	        return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error deleting service", e.getMessage());
 	    }
 	}
+	
+	@GetMapping("/category/{category}")
+    public ApisResponse getServicesByCategory(@PathVariable String category) {
+        try {
+            List<ClavritService> services = serviceService.getServicesByCategory(category);
+            return new ApisResponse(ApiStatus.OK, "Fetched services by category", services);
+        } catch (Exception e) {
+            return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error fetching services by category", e.getMessage());
+        }
+    }
 
 }

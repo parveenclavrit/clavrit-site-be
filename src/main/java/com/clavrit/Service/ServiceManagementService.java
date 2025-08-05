@@ -13,12 +13,17 @@ public interface ServiceManagementService {
 
 	
 	 ClavritService createService(ServiceDto dto, List<MultipartFile> images) throws IOException;
+	 
+	 List<ClavritService> getAllServices();
+	 
+	 Optional<ClavritService> getService(Long id);
+	 
+	 ClavritService updateService(Long id, ServiceDto dto, List<MultipartFile> images );
+	 
+	 List<ClavritService> createServiceList( List<ClavritService> service);
+	 
+	 void deleteService(Long id);
+	 
+	 List<ClavritService> getServicesByCategory(String category);
 
-	    List<ClavritService> getAllServices();
-
-	    Optional<ClavritService> getService(Long id);
-
-	    ClavritService updateService(Long id, ServiceDto dto, List<MultipartFile> images );
-	    List<ClavritService> createServiceList( List<ClavritService> service);
-	    void deleteService(Long id);
 }

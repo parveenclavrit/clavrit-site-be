@@ -1,5 +1,6 @@
 package com.clavrit.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,8 @@ public interface ServiceRepository extends JpaRepository<ClavritService, Long> {
 	
 //	Optional<ClavritService> findByNameAndDescription(String name, String description);
 	Optional<ClavritService> findByTitleAndDescription(String title, String description);
+	
+	List<ClavritService> findByCategoryIgnoreCase(String category);
 	
 
 }

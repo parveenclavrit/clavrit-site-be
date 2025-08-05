@@ -115,15 +115,25 @@ public class DataExportServiceImpl {
 	
 	private void populateServicesSheet(Workbook workbook, List<ClavritService> services) {
 	    Sheet sheet = workbook.getSheet("Services");
+	    
+	    Row header = sheet.createRow(0);
+	    int col = 0;
+	    header.createCell(col++).setCellValue("title");
+	    header.createCell(col++).setCellValue("subheading");
+	    header.createCell(col++).setCellValue("category");
+	    header.createCell(col++).setCellValue("description");
+	    header.createCell(col++).setCellValue("content");
+	    header.createCell(col++).setCellValue("image_urls");
+	    
 	    int rowNum = 1;
 
 	    for (ClavritService service : services) {
 	        Row row = sheet.createRow(rowNum++);
-	        int col = 0;
+	        col = 0;
 
 	        row.createCell(col++).setCellValue(service.getTitle());
-	        row.createCell(col++).setCellValue(service.getImg());
 	        row.createCell(col++).setCellValue(service.getSubheading());
+	        row.createCell(col++).setCellValue(service.getCategory()); 
 	        row.createCell(col++).setCellValue(service.getDescription());
 	        row.createCell(col++).setCellValue(service.getContent());
 	        row.createCell(col++).setCellValue(String.join(", ", service.getImageUrls()));

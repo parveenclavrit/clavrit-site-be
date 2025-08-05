@@ -47,8 +47,8 @@ public class ExcelImportServiceImpl implements ExcelImportService {
 	         ClavritService service = new ClavritService();
 
 	         service.setTitle(getCellValue(row, 0));
-	         service.setImg(getCellValue(row, 1));
-	         service.setSubheading(getCellValue(row, 2));
+	         service.setSubheading(getCellValue(row, 1));
+	         service.setCategory(getCellValue(row, 2)); 
 	         service.setDescription(getCellValue(row, 3));
 	         service.setContent(getCellValue(row, 4));
 
