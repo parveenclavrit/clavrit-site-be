@@ -34,6 +34,8 @@ public class AppRunner extends SpringBootServletInitializer {
 
             createUserIfNotExists(repo, 
                 "hr@clavrit.com", "Clavrit@12345", "HR");
+            createUserIfNotExists(repo, 
+                    "seo@clavrit.com", "Clavritseo@12345", "SEO");
         };
     }
 
