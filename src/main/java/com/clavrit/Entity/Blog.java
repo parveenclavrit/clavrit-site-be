@@ -20,27 +20,21 @@ public class Blog {
 
     private String title;
 
-    private String subtitle;
+    private String slug;
 
+    private String publish;
+    
     private String authorName;
 
-    @Lob
-    private String summary;
+    private String bannerUrl;
 
     @Lob
     private String content;
 
-    @Lob
-    private String advantages;
+    private String serpTitle;
 
     @Lob
-    private String disadvantages;
-
-    @Lob
-    private String conclusion;
-
-    @ElementCollection
-    private List<String> imageUrl;
+    private String serpMetaDescription;
 
     @ElementCollection
     private List<String> tags;
@@ -65,12 +59,20 @@ public class Blog {
 		this.title = title;
 	}
 
-	public String getSubtitle() {
-		return subtitle;
+	public String getSlug() {
+		return slug;
 	}
 
-	public void setSubtitle(String subtitle) {
-		this.subtitle = subtitle;
+	public void setSlug(String slug) {
+		this.slug = slug;
+	}
+
+	public String getPublish() {
+		return publish;
+	}
+
+	public void setPublish(String publish) {
+		this.publish = publish;
 	}
 
 	public String getAuthorName() {
@@ -81,12 +83,12 @@ public class Blog {
 		this.authorName = authorName;
 	}
 
-	public String getSummary() {
-		return summary;
+	public String getBannerUrl() {
+		return bannerUrl;
 	}
 
-	public void setSummary(String summary) {
-		this.summary = summary;
+	public void setBannerUrl(String bannerUrl) {
+		this.bannerUrl = bannerUrl;
 	}
 
 	public String getContent() {
@@ -97,36 +99,20 @@ public class Blog {
 		this.content = content;
 	}
 
-	public String getAdvantages() {
-		return advantages;
+	public String getSerpTitle() {
+		return serpTitle;
 	}
 
-	public void setAdvantages(String advantages) {
-		this.advantages = advantages;
+	public void setSerpTitle(String serpTitle) {
+		this.serpTitle = serpTitle;
 	}
 
-	public String getDisadvantages() {
-		return disadvantages;
+	public String getSerpMetaDescription() {
+		return serpMetaDescription;
 	}
 
-	public void setDisadvantages(String disadvantages) {
-		this.disadvantages = disadvantages;
-	}
-
-	public String getConclusion() {
-		return conclusion;
-	}
-
-	public void setConclusion(String conclusion) {
-		this.conclusion = conclusion;
-	}
-
-	public List<String> getImageUrl() {
-		return imageUrl;
-	}
-
-	public void setImageUrl(List<String> imageUrl) {
-	    this.imageUrl = (imageUrl != null) ? new ArrayList<>(imageUrl) : new ArrayList<>();
+	public void setSerpMetaDescription(String serpMetaDescription) {
+		this.serpMetaDescription = serpMetaDescription;
 	}
 
 	public List<String> getTags() {
@@ -134,7 +120,7 @@ public class Blog {
 	}
 
 	public void setTags(List<String> tags) {
-	    this.tags = (tags != null) ? new ArrayList<>(tags) : new ArrayList<>();
+		this.tags = tags;
 	}
 
 	public LocalDateTime getCreatedAt() {
@@ -152,7 +138,6 @@ public class Blog {
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
-    
-    
 
+	
 }

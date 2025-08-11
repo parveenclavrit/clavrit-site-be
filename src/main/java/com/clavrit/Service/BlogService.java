@@ -9,9 +9,9 @@ import com.clavrit.Entity.Blog;
 
 public interface BlogService {
 	
-	BlogDto createBlog(BlogDto blogDto, List<MultipartFile> images);
+	BlogDto createBlog(BlogDto blogDto, MultipartFile bannerImage);
 
-    BlogDto updateBlog(Long id, BlogDto blogDto, List<MultipartFile> images);
+    BlogDto updateBlog(Long id, BlogDto blogDto, MultipartFile bannerImage);
 
     BlogDto getBlogById(Long id);
 

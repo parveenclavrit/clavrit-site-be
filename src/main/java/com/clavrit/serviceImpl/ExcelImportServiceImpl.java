@@ -75,19 +75,16 @@ public class ExcelImportServiceImpl implements ExcelImportService {
             Blog blog = new Blog();
 
             blog.setTitle(getCellValue(row, 0));
-            blog.setSubtitle(getCellValue(row, 1));
-            blog.setAuthorName(getCellValue(row, 2));
-            blog.setSummary(getCellValue(row, 3));
-            blog.setContent(getCellValue(row, 4));
-            blog.setAdvantages(getCellValue(row, 5));
-            blog.setDisadvantages(getCellValue(row, 6));
-            blog.setConclusion(getCellValue(row, 7));
+            blog.setSlug(getCellValue(row, 1));
+            blog.setPublish(getCellValue(row, 2));
+            blog.setAuthorName(getCellValue(row, 3));
+            String bannerFileName = getCellValue(row, 4);
+            blog.setBannerUrl(buildFullImageUrl(bannerFileName));
+            blog.setContent(getCellValue(row, 5));
+            blog.setSerpTitle(getCellValue(row, 6));
+            blog.setSerpMetaDescription(getCellValue(row, 7));
             
-            String imageUrlsRaw = getCellValue(row, 8); 
-            List<String> imageUrls = buildFullImageUrls(imageUrlsRaw);
-            blog.setImageUrl(imageUrls);
-            
-            String tags = row.getCell(9).getStringCellValue();                         
+            String tags = row.getCell(8).getStringCellValue();                         
             List<String> tagsList = new ArrayList<>(Arrays.asList(tags.split("\\s*,\\s*")));
             blog.setTags(tagsList);
             
@@ -331,6 +328,13 @@ public class ExcelImportServiceImpl implements ExcelImportService {
                 .map(s -> PUBLIC_URL_BASE + "/upload/" + s)
                 .collect(Collectors.toList()));
     }
+    private String buildFullImageUrl(String cellValue) {
+        if (cellValue == null || cellValue.trim().isEmpty()) {
+            return null;
+        }
+        return PUBLIC_URL_BASE + "/upload/" + cellValue.trim();
+    }
+
     private boolean isRowEmpty(Row row) {
         if (row == null) {
             return true;

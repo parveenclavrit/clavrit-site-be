@@ -14,14 +14,13 @@ public class BlogMapper {
         BlogDto dto = new BlogDto();
         dto.setId(blog.getId());
         dto.setTitle(blog.getTitle());
-        dto.setSubtitle(blog.getSubtitle());
+        dto.setSlug(blog.getSlug());
+        dto.setPublish(blog.getPublish());
         dto.setAuthorName(blog.getAuthorName());
-        dto.setSummary(blog.getSummary());
+        dto.setBannerUrl(blog.getBannerUrl());
         dto.setContent(blog.getContent());
-        dto.setAdvantages(blog.getAdvantages());
-        dto.setDisadvantages(blog.getDisadvantages());
-        dto.setConclusion(blog.getConclusion());
-        dto.setImageUrl(blog.getImageUrl());
+        dto.setSerpTitle(blog.getSerpTitle());
+        dto.setSerpMetaDescription(blog.getSerpMetaDescription());
         dto.setTags(blog.getTags());
         dto.setCreatedAt(blog.getCreatedAt());
         dto.setUpdatedAt(blog.getUpdatedAt());
@@ -35,15 +34,16 @@ public class BlogMapper {
         Blog blog = new Blog();
         blog.setId(dto.getId());
         blog.setTitle(dto.getTitle());
-        blog.setSubtitle(dto.getSubtitle());
+        blog.setSlug(dto.getSlug());
+        blog.setPublish(dto.getPublish());
         blog.setAuthorName(dto.getAuthorName());
-        blog.setSummary(dto.getSummary());
+        blog.setBannerUrl(dto.getBannerUrl());
         blog.setContent(dto.getContent());
-        blog.setAdvantages(dto.getAdvantages());
-        blog.setDisadvantages(dto.getDisadvantages());
-        blog.setConclusion(dto.getConclusion());
-        blog.setImageUrl(dto.getImageUrl());
+        blog.setSerpTitle(dto.getSerpTitle());
+        blog.setSerpMetaDescription(dto.getSerpMetaDescription());
         blog.setTags(dto.getTags());
+        blog.setCreatedAt(dto.getCreatedAt());
+        blog.setUpdatedAt(dto.getUpdatedAt());
 
         return blog;
     }

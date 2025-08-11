@@ -10,17 +10,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import com.clavrit.Dto.BlogDto;
-import com.clavrit.Dto.ProjectDto;
 import com.clavrit.Enums.ApiStatus;
 import com.clavrit.Service.BlogService;
 import com.clavrit.response.ApisResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
@@ -32,15 +31,18 @@ public class BlogController {
 	
 	@PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 	public ApisResponse createBlog(MultipartHttpServletRequest request,
-	                               @RequestParam(value = "images", required = false) List<MultipartFile> images) {
+						@RequestPart(value = "bannerImage", required = false) MultipartFile bannerImage	) {
 	    try {
 	        String blogJson = request.getParameter("blog");
 	        ObjectMapper mapper = new ObjectMapper();
 	        BlogDto blogDto = mapper.readValue(blogJson, BlogDto.class);
 
-	        BlogDto createdBlog = blogService.createBlog(blogDto, images);
+	        BlogDto createdBlog = blogService.createBlog(blogDto, bannerImage);
 	        return new ApisResponse(ApiStatus.CREATED, "Blog created successfully", createdBlog);
-	    } catch (Exception e) {
+	    }catch (JsonProcessingException e) {
+	        return new ApisResponse(ApiStatus.BAD_REQUEST, "Invalid blog JSON", e.getMessage());
+	    }
+	    catch (Exception e) {
 	        return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error creating blog", e.getMessage());
 	    }
 	}
@@ -50,14 +52,17 @@ public class BlogController {
     public ApisResponse updateBlog(
             @PathVariable Long id,
             @RequestPart("blog") String blogJson,
-            @RequestPart(value = "images", required = false) List<MultipartFile> images) {
+            @RequestPart(value = "bannerImage", required = false) MultipartFile bannerImage) {
         try {
         	ObjectMapper mapper = new ObjectMapper();
         	BlogDto blogDto = mapper.readValue(blogJson, BlogDto.class);
         	
-            BlogDto updatedBlog = blogService.updateBlog(id, blogDto, images);
+            BlogDto updatedBlog = blogService.updateBlog(id, blogDto, bannerImage);
             return new ApisResponse(ApiStatus.OK, "Blog updated successfully", updatedBlog);
-        } catch (Exception e) {
+        }catch (JsonProcessingException e) {
+            return new ApisResponse(ApiStatus.BAD_REQUEST, "Invalid blog JSON", e.getMessage());
+        } 
+        catch (Exception e) {
             return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error updating blog", e.getMessage());
         }
     }

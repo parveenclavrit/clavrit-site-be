@@ -138,16 +138,15 @@ public class DataExportServiceImpl {
 	    for (Blog blog : blogs) {
 	        Row row = sheet.createRow(rowNum++);
 	        int col = 0;
-	        row.createCell(col++).setCellValue(blog.getTitle());
-	        row.createCell(col++).setCellValue(blog.getSubtitle());
-	        row.createCell(col++).setCellValue(blog.getAuthorName());
-	        row.createCell(col++).setCellValue(blog.getSummary());
-	        row.createCell(col++).setCellValue(blog.getContent());
-	        row.createCell(col++).setCellValue(blog.getAdvantages());
-	        row.createCell(col++).setCellValue(blog.getDisadvantages());
-	        row.createCell(col++).setCellValue(blog.getConclusion());
-	        row.createCell(col++).setCellValue(String.join(", ", blog.getImageUrl()));
-	        row.createCell(col++).setCellValue(String.join(", ", blog.getTags()));
+	        row.createCell(col++).setCellValue(blog.getTitle() != null ? blog.getTitle() : "");
+	        row.createCell(col++).setCellValue(blog.getSlug() != null ? blog.getSlug() : "");
+	        row.createCell(col++).setCellValue(blog.getPublish() != null ? blog.getPublish() : "");
+	        row.createCell(col++).setCellValue(blog.getAuthorName() != null ? blog.getAuthorName() : "");
+	        row.createCell(col++).setCellValue(blog.getBannerUrl() != null ? blog.getBannerUrl() : "");
+	        row.createCell(col++).setCellValue(blog.getContent() != null ? blog.getContent() : "");
+	        row.createCell(col++).setCellValue(blog.getSerpTitle() != null ? blog.getSerpTitle() : "");
+	        row.createCell(col++).setCellValue(blog.getSerpMetaDescription() != null ? blog.getSerpMetaDescription() : "");
+	        row.createCell(col++).setCellValue(blog.getTags() != null ? String.join(", ", blog.getTags()) : "");
 	    }
 	}
 

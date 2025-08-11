@@ -46,7 +46,7 @@ public class BlogServiceImpl implements BlogService{
     private String PUBLIC_URL_BASE;
 
 	@Override
-	public BlogDto createBlog(BlogDto blogDto, List<MultipartFile> images) {
+	public BlogDto createBlog(BlogDto blogDto, MultipartFile bannerImage) {
 		try {
 			boolean exists = blogRepository.existsByTitleIgnoreCaseAndAuthorNameIgnoreCase(blogDto.getTitle(), blogDto.getAuthorName());
 	        if (exists) {
@@ -54,8 +54,8 @@ public class BlogServiceImpl implements BlogService{
 	        }
 	        
             Blog blog = blogMapper.toEntity(blogDto);
-            List<String> imageUrls = saveImages(images);
-            blog.setImageUrl(imageUrls);
+            String imageUrl = saveImage(bannerImage);
+            blog.setBannerUrl(imageUrl);
             blog.setCreatedAt(LocalDateTime.now());
             blog.setUpdatedAt(LocalDateTime.now());
 
@@ -105,14 +105,14 @@ public class BlogServiceImpl implements BlogService{
 		        if (existingMap.containsKey(key)) {
 		            
 		            Blog existing = existingMap.get(key);
-		            existing.setContent(incoming.getContent());
-		            existing.setTags(incoming.getTags());
-		            existing.setAdvantages(incoming.getAdvantages());
-		            existing.setDisadvantages(incoming.getDisadvantages());
-		            existing.setSummary(incoming.getSummary());
-		            existing.setConclusion(incoming.getConclusion());
-		            if (existing.getImageUrl() != null && !existing.getImageUrl().isEmpty()) {
-		            	for (String url : existing.getImageUrl()) {
+		            existing.setSlug(incoming.getSlug());
+	                existing.setPublish(incoming.getPublish());
+	                existing.setContent(incoming.getContent());
+	                existing.setSerpTitle(incoming.getSerpTitle());
+	                existing.setSerpMetaDescription(incoming.getSerpMetaDescription());
+	                existing.setTags(incoming.getTags());
+		            if (existing.getBannerUrl() != null && !existing.getBannerUrl().isEmpty()) {
+		            	String url =existing.getBannerUrl();
 		            	    try {
 		            	        // Convert public URL to local file path
 		            	        String localPath = url.replace(PUBLIC_URL_BASE, LOCAL_URL_BASE);
@@ -128,9 +128,8 @@ public class BlogServiceImpl implements BlogService{
 		            	        logger.warn("Failed to delete image: {}", url, e);
 		            	    }
 		            	}
-		            	existing.setImageUrl(incoming.getImageUrl());
-		            }
-		            existing.setSubtitle(incoming.getSubtitle());
+		            	existing.setBannerUrl(incoming.getBannerUrl());
+		            
 		            existing.setUpdatedAt(LocalDateTime.now());
 		            blogsToSave.add(existing);
 		        } else {
@@ -157,7 +156,7 @@ public class BlogServiceImpl implements BlogService{
     
 
 	@Override
-	public BlogDto updateBlog(Long id, BlogDto dto, List<MultipartFile> images) {
+	public BlogDto updateBlog(Long id, BlogDto dto, MultipartFile bannerImage) {
 	    try {
 	        Optional<Blog> optionalBlog = blogRepository.findById(id);
 	        if (!optionalBlog.isPresent()) {
@@ -167,39 +166,35 @@ public class BlogServiceImpl implements BlogService{
 	        Blog blog = optionalBlog.get();
 
 	        blog.setTitle(dto.getTitle() != null ? dto.getTitle() : blog.getTitle());
-	        blog.setSubtitle(dto.getSubtitle() != null ? dto.getSubtitle() : blog.getSubtitle());
+	        blog.setSlug(dto.getSlug() != null ? dto.getSlug() : blog.getSlug());
+	        blog.setPublish(dto.getPublish() != null ? dto.getPublish() : blog.getPublish());
 	        blog.setAuthorName(dto.getAuthorName() != null ? dto.getAuthorName() : blog.getAuthorName());
-	        blog.setSummary(dto.getSummary() != null ? dto.getSummary() : blog.getSummary());
+	        blog.setBannerUrl(dto.getBannerUrl() != null ? dto.getBannerUrl() : blog.getBannerUrl());
 	        blog.setContent(dto.getContent() != null ? dto.getContent() : blog.getContent());
-	        blog.setAdvantages(dto.getAdvantages() != null ? dto.getAdvantages() : blog.getAdvantages());
-	        blog.setDisadvantages(dto.getDisadvantages() != null ? dto.getDisadvantages() : blog.getDisadvantages());
-	        blog.setConclusion(dto.getConclusion() != null ? dto.getConclusion() : blog.getConclusion());
+	        blog.setSerpTitle(dto.getSerpTitle() != null ? dto.getSerpTitle() : blog.getSerpTitle());
+	        blog.setSerpMetaDescription(dto.getSerpMetaDescription() != null ? dto.getSerpMetaDescription() : blog.getSerpMetaDescription());
 	        blog.setTags(dto.getTags() != null ? dto.getTags() : blog.getTags());
 
 
-	        if (images != null && !images.isEmpty()) {
-	            List<String> existingImages = blog.getImageUrl();
-	            if (existingImages != null && !existingImages.isEmpty()) {
-	            	for (String url : existingImages) {
-	            	    try {
-	            	        // Convert public URL to local file path
-	            	        String localPath = url.replace(PUBLIC_URL_BASE, LOCAL_URL_BASE);
 
-	            	        File file = new File(localPath);
-	            	        if (file.exists()) {
-	            	            file.delete();
-	            	            logger.info("Deleted old image: {}", localPath);
-	            	        } else {
-	            	            logger.warn("File not found for deletion: {}", localPath);
-	            	        }
-	            	    } catch (Exception e) {
-	            	        logger.warn("Failed to delete image: {}", url, e);
-	            	    }
-	            	}
+	        if (bannerImage != null && !bannerImage.isEmpty()) {
+	            if (blog.getBannerUrl() != null) {
+	                try {
+	                    String localPath = blog.getBannerUrl().replace(PUBLIC_URL_BASE, LOCAL_URL_BASE);
+	                    File oldFile = new File(localPath);
+	                    if (oldFile.exists()) {
+	                        if (oldFile.delete()) {
+	                            logger.info("Deleted old banner image: {}", localPath);
+	                        } else {
+	                            logger.warn("Failed to delete old banner image: {}", localPath);
+	                        }
+	                    }
+	                } catch (Exception e) {
+	                    logger.warn("Error deleting old banner image: {}", blog.getBannerUrl(), e);
+	                }
 	            }
-
-	            List<String> imageUrls = saveImages(images);
-	            blog.setImageUrl(imageUrls);
+	            String newImageUrl = saveImage(bannerImage);
+	            blog.setBannerUrl(newImageUrl);
 	        }
 
 	        blog.setUpdatedAt(LocalDateTime.now());
@@ -271,37 +266,34 @@ public class BlogServiceImpl implements BlogService{
 	    }
 	}
 
-	private List<String> saveImages(List<MultipartFile> images) {
-	    List<String> imageUrls = new ArrayList<>();
-	    if (images == null || images.isEmpty()) return imageUrls;
-
-	    File dir = new File(blogImagePath);
-	    if (!dir.exists()) dir.mkdirs();
-
-	    for (MultipartFile file : images) {
-	        if (file != null && !file.isEmpty()) {
-	            try {
-	                String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-	                String fullPath = blogImagePath + uniqueFileName;
-
-	                File dest = new File(fullPath);
-	                file.transferTo(dest);
-
-	                logger.info("Saved blog image to: {}", fullPath);
-
-	                // Convert full path to public URL
-	                String publicUrl = fullPath
-	                        .replace(LOCAL_URL_BASE, PUBLIC_URL_BASE)
-	                        .replace("\\", "/"); // in case of Windows paths
-
-	                imageUrls.add(publicUrl);
-	            } catch (Exception e) {
-	                logger.error("Image saving failed: {}", e.getMessage());
-	                throw new RuntimeException("Error saving image: " + e.getMessage());
-	            }
-	        }
+	private String saveImage(MultipartFile file) {
+	    if (file == null || file.isEmpty()) {
+	        return null;
 	    }
-	    return imageUrls;
+
+	    try {
+	        File dir = new File(blogImagePath);
+	        if (!dir.exists() && !dir.mkdirs()) {
+	            throw new RuntimeException("Failed to create directory: " + blogImagePath);
+	        }
+
+	        String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+	        String fullPath = blogImagePath + uniqueFileName;
+
+	        file.transferTo(new File(fullPath));
+	        logger.info("Saved blog image to: {}", fullPath);
+
+	        // Convert local path to public URL
+	        String publicUrl = fullPath
+	                .replace(LOCAL_URL_BASE, PUBLIC_URL_BASE)
+	                .replace("\\", "/"); // normalize for Windows
+
+	        return publicUrl;
+	    } catch (Exception e) {
+	        logger.error("Image saving failed", e);
+	        throw new RuntimeException("Error saving image: " + e.getMessage(), e);
+	    }
 	}
+
 
 }

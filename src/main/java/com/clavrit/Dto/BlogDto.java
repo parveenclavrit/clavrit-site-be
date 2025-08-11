@@ -10,21 +10,19 @@ public class BlogDto {
 
     private String title;
 
-    private String subtitle;
+    private String slug;
+
+    private String publish;
 
     private String authorName;
 
-    private String summary;
+    private String bannerUrl;
 
     private String content;
 
-    private String advantages;
+    private String serpTitle;
 
-    private String disadvantages;
-
-    private String conclusion;
-
-    private List<String> imageUrl;
+    private String serpMetaDescription;
 
     private List<String> tags;
 
@@ -48,12 +46,20 @@ public class BlogDto {
 		this.title = title;
 	}
 
-	public String getSubtitle() {
-		return subtitle;
+	public String getSlug() {
+		return slug;
 	}
 
-	public void setSubtitle(String subtitle) {
-		this.subtitle = subtitle;
+	public void setSlug(String slug) {
+		this.slug = slug;
+	}
+
+	public String getPublish() {
+		return publish;
+	}
+
+	public void setPublish(String publish) {
+		this.publish = publish;
 	}
 
 	public String getAuthorName() {
@@ -64,12 +70,12 @@ public class BlogDto {
 		this.authorName = authorName;
 	}
 
-	public String getSummary() {
-		return summary;
+	public String getBannerUrl() {
+		return bannerUrl;
 	}
 
-	public void setSummary(String summary) {
-		this.summary = summary;
+	public void setBannerUrl(String bannerUrl) {
+		this.bannerUrl = bannerUrl;
 	}
 
 	public String getContent() {
@@ -80,36 +86,20 @@ public class BlogDto {
 		this.content = content;
 	}
 
-	public String getAdvantages() {
-		return advantages;
+	public String getSerpTitle() {
+		return serpTitle;
 	}
 
-	public void setAdvantages(String advantages) {
-		this.advantages = advantages;
+	public void setSerpTitle(String serpTitle) {
+		this.serpTitle = serpTitle;
 	}
 
-	public String getDisadvantages() {
-		return disadvantages;
+	public String getSerpMetaDescription() {
+		return serpMetaDescription;
 	}
 
-	public void setDisadvantages(String disadvantages) {
-		this.disadvantages = disadvantages;
-	}
-
-	public String getConclusion() {
-		return conclusion;
-	}
-
-	public void setConclusion(String conclusion) {
-		this.conclusion = conclusion;
-	}
-
-	public List<String> getImageUrl() {
-		return imageUrl;
-	}
-
-	public void setImageUrl(List<String> imageUrl) {
-		this.imageUrl = imageUrl;
+	public void setSerpMetaDescription(String serpMetaDescription) {
+		this.serpMetaDescription = serpMetaDescription;
 	}
 
 	public List<String> getTags() {
@@ -135,7 +125,6 @@ public class BlogDto {
 	public void setUpdatedAt(LocalDateTime updatedAt) {
 		this.updatedAt = updatedAt;
 	}
-    
-    
 
+	
 }
