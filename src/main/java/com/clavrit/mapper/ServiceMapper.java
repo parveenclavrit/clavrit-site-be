@@ -16,6 +16,9 @@ public class ServiceMapper {
         ClavritService entity = new ClavritService();
         entity.setTitle(dto.getTitle());
         entity.setSubheading(dto.getSubheading());
+        entity.setMetaTitle(dto.getMetaTitle());
+        entity.setMetaDescription(dto.getMetaDescription());
+        entity.setSlug(dto.getSlug());
         entity.setCategory(dto.getCategory());
         entity.setDescription(dto.getDescription());
         entity.setContent(dto.getContent());
@@ -30,6 +33,9 @@ public class ServiceMapper {
         ServiceDto dto = new ServiceDto();
         dto.setTitle(entity.getTitle());
         dto.setSubheading(entity.getSubheading());
+        dto.setMetaTitle(entity.getMetaTitle());
+        dto.setMetaDescription(entity.getMetaDescription());
+        dto.setSlug(entity.getSlug());
         dto.setCategory(entity.getCategory());
         dto.setDescription(entity.getDescription());
         dto.setContent(entity.getContent());

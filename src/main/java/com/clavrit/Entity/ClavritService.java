@@ -24,6 +24,12 @@ public class ClavritService {
 
 	    private String title;
 	    
+	    private String metaTitle;
+	    
+	    private String slug;
+	    
+	    private String metaDescription;
+	    
 	    private String subheading;
 	    
 	    private String category;
@@ -98,6 +104,30 @@ public class ClavritService {
 		public ClavritService() {
 			super();
 			// TODO Auto-generated constructor stub
+		}
+
+		public String getMetaTitle() {
+			return metaTitle;
+		}
+
+		public void setMetaTitle(String metaTitlte) {
+			this.metaTitle = metaTitlte;
+		}
+
+		public String getSlug() {
+			return slug;
+		}
+
+		public void setSlug(String slug) {
+			this.slug = slug;
+		}
+
+		public String getMetaDescription() {
+			return metaDescription;
+		}
+
+		public void setMetaDescription(String metaDescription) {
+			this.metaDescription = metaDescription;
 		}
 
 	   

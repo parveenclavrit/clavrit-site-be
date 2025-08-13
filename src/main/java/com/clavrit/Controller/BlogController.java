@@ -9,7 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -71,6 +73,16 @@ public class BlogController {
     public ApisResponse getBlogById(@PathVariable Long id) {
         try {
             BlogDto blog = blogService.getBlogById(id);
+            return new ApisResponse(ApiStatus.OK, "Blog fetched successfully", blog);
+        } catch (Exception e) {
+            return new ApisResponse(ApiStatus.NOT_FOUND, "Error fetching blog", e.getMessage());
+        }
+    }
+	
+	@GetMapping("/slug")
+    public ApisResponse getBlogBySlug(@RequestParam("slug") String slug) {
+        try {
+            BlogDto blog = blogService.getBlogBySlug(slug);
             return new ApisResponse(ApiStatus.OK, "Blog fetched successfully", blog);
         } catch (Exception e) {
             return new ApisResponse(ApiStatus.NOT_FOUND, "Error fetching blog", e.getMessage());

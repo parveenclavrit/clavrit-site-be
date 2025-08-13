@@ -8,6 +8,11 @@ public class ServiceDto {
 	private String title;
     private String subheading;
     private String category;
+    private String metaTitle;
+    
+    private String slug;
+    
+    private String metaDescription;
     private String description;
     private String content;
     private List<String> imageUrls = new ArrayList<>();
@@ -46,6 +51,24 @@ public class ServiceDto {
 	}
 	public void setImageUrls(List<String> imageUrls) {
 		this.imageUrls = imageUrls;
+	}
+	public String getMetaTitle() {
+		return metaTitle;
+	}
+	public void setMetaTitle(String metaTitlte) {
+		this.metaTitle = metaTitlte;
+	}
+	public String getSlug() {
+		return slug;
+	}
+	public void setSlug(String slug) {
+		this.slug = slug;
+	}
+	public String getMetaDescription() {
+		return metaDescription;
+	}
+	public void setMetaDescription(String metaDescription) {
+		this.metaDescription = metaDescription;
 	}
 
     

@@ -15,6 +15,8 @@ public interface ServiceRepository extends JpaRepository<ClavritService, Long> {
 	Optional<ClavritService> findByTitleAndDescription(String title, String description);
 	
 	List<ClavritService> findByCategoryIgnoreCase(String category);
+
+	Optional<ClavritService> findBySlug(String slug);
 	
 
 }

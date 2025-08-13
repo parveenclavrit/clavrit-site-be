@@ -1,6 +1,7 @@
 package com.clavrit.serviceImpl;
 
 import com.clavrit.Dto.ServiceDto;
+import com.clavrit.Entity.Blog;
 import com.clavrit.Entity.ClavritService;
 import com.clavrit.Repository.ServiceRepository;
 import com.clavrit.Service.ServiceManagementService;
@@ -98,7 +99,10 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
                 if (existingMap.containsKey(key)) {
                     ClavritService existing = existingMap.get(key);
 
-                    
+                    if (incoming.getSlug() != null) existing.setSlug(incoming.getSlug());
+                    if (incoming.getMetaTitle() != null) existing.setMetaTitle(incoming.getMetaTitle());
+                    if (incoming.getMetaDescription() != null) existing.setMetaDescription(incoming.getMetaDescription());
+
                     if (incoming.getSubheading() != null) existing.setSubheading(incoming.getSubheading());
                     if (incoming.getContent() != null) existing.setContent(incoming.getContent());
                     if (incoming.getCategory() != null) existing.setCategory(incoming.getCategory()); 
@@ -149,6 +153,10 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
             service.setDescription(dto.getDescription() != null ? dto.getDescription() : service.getDescription());
             service.setContent(dto.getContent() != null ? dto.getContent() : service.getContent());
             service.setCategory(dto.getCategory() != null ? dto.getCategory() : service.getCategory());
+            service.setSlug(dto.getSlug() != null ? dto.getSlug() : service.getSlug());
+            service.setMetaTitle(dto.getMetaTitle() != null ? dto.getMetaTitle() : service.getMetaTitle());
+            service.setMetaDescription(dto.getMetaDescription() != null ? dto.getMetaDescription() : service.getMetaDescription());
+
 
             // Update images if new ones are provided
             if (images != null && !images.isEmpty()) {
@@ -233,4 +241,12 @@ public class ServiceManagementServiceImpl implements ServiceManagementService {
         }
         return imageUrls;
     }
+
+
+	@Override
+	public ClavritService getServicesBySlug(String slug) {
+		   ClavritService service = serviceRepo.findBySlug(slug)
+		            .orElseThrow(() -> new RuntimeException("Service not found with slug: " + slug));
+		    return service;
+	}
 }

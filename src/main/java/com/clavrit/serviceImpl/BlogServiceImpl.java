@@ -294,6 +294,14 @@ public class BlogServiceImpl implements BlogService{
 	        throw new RuntimeException("Error saving image: " + e.getMessage(), e);
 	    }
 	}
+	@Override
+	public BlogDto getBlogBySlug(String slug) {
+	    Blog blog = blogRepository.findBySlug(slug)
+	            .orElseThrow(() -> new RuntimeException("Blog not found with slug: " + slug));
+	    return blogMapper.toDto(blog);
+	}
+
+
 
 
 }

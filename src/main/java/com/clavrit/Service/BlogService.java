@@ -20,4 +20,6 @@ public interface BlogService {
     String deleteBlog(Long id);
     List<Blog> createBlogList( List<Blog> blogs);
 
+	BlogDto getBlogBySlug(String slug);
+
 }

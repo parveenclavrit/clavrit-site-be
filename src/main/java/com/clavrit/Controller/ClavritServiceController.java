@@ -36,6 +36,11 @@ public class ClavritServiceController {
 	        @RequestParam("title") String title,
 	        @RequestParam("subheading") String subheading,
 	        @RequestParam("category") String category,
+	        
+	        @RequestParam("slug") String slug,
+	        @RequestParam("metaTitle") String metaTitle,
+	        @RequestParam("metaDescription") String metaDescription,
+	        
 	        @RequestParam("description") String description,
 	        @RequestParam("content") String content,
 	        @RequestPart("images") List<MultipartFile> files) {
@@ -47,6 +52,9 @@ public class ClavritServiceController {
 	        dto.setCategory(category);
 	        dto.setDescription(description);
 	        dto.setContent(content);
+	        dto.setSlug(slug);
+	        dto.setMetaDescription(metaDescription);
+	        dto.setMetaTitle(metaTitle);
 
 	        ClavritService createdService = serviceService.createService(dto, files);
 	        return new ApisResponse(ApiStatus.CREATED, "Service created successfully", createdService);
@@ -85,6 +93,11 @@ public class ClavritServiceController {
 	        @PathVariable Long id,
 	        @RequestParam("title") String title,
 	        @RequestParam("subheading") String subheading,
+	        
+	        @RequestParam("slug") String slug,
+	        @RequestParam("metaTitle") String metaTitle,
+	        @RequestParam("metaDescription") String metaDescription,
+	        
 	        @RequestParam("category") String category,
 	        @RequestParam("description") String description,
 	        @RequestParam("content") String content,
@@ -96,6 +109,9 @@ public class ClavritServiceController {
 	        dto.setCategory(category);
 	        dto.setDescription(description);
 	        dto.setContent(content);
+	        dto.setSlug(slug);
+	        dto.setMetaDescription(metaDescription);
+	        dto.setMetaTitle(metaTitle);
 
 	        ClavritService updated = serviceService.updateService(id, dto, images);
 	        return new ApisResponse(ApiStatus.OK, "Service updated successfully", updated);
@@ -119,6 +135,16 @@ public class ClavritServiceController {
     public ApisResponse getServicesByCategory(@PathVariable String category) {
         try {
             List<ClavritService> services = serviceService.getServicesByCategory(category);
+            return new ApisResponse(ApiStatus.OK, "Fetched services by category", services);
+        } catch (Exception e) {
+            return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error fetching services by category", e.getMessage());
+        }
+    }
+	
+	@GetMapping("/slug")
+    public ApisResponse getServicesBySlug(@RequestParam("slug") String slug) {
+        try {
+            ClavritService services = serviceService.getServicesBySlug(slug);
             return new ApisResponse(ApiStatus.OK, "Fetched services by category", services);
         } catch (Exception e) {
             return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error fetching services by category", e.getMessage());

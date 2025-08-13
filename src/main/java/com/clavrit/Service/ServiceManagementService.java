@@ -26,4 +26,6 @@ public interface ServiceManagementService {
 	 
 	 List<ClavritService> getServicesByCategory(String category);
 
+	ClavritService getServicesBySlug(String slug);
+
 }
