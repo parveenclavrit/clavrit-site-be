@@ -123,8 +123,11 @@ public class DataExportServiceImpl {
 	        int col = 0;
 
 	        row.createCell(col++).setCellValue(service.getTitle());
+	        row.createCell(col++).setCellValue(service.getMetaTitle());
+	        row.createCell(col++).setCellValue(service.getSlug());
+	        row.createCell(col++).setCellValue(service.getMetaDescription());
 	        row.createCell(col++).setCellValue(service.getSubheading());
-	        row.createCell(col++).setCellValue(service.getCategory()); 
+	        row.createCell(col++).setCellValue(service.getCategory());
 	        row.createCell(col++).setCellValue(service.getDescription());
 	        row.createCell(col++).setCellValue(service.getContent());
 	        row.createCell(col++).setCellValue(String.join(", ", service.getImageUrls()));
