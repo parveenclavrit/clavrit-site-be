@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.clavrit.Dto.JobDetailDTO;
+import com.clavrit.Entity.Blog;
 import com.clavrit.Entity.JobDetail;
 import com.clavrit.Repository.JobDetailRepository;
 import com.clavrit.Service.JobDetailService;
@@ -185,6 +186,13 @@ public class JobDetailServiceImpl implements JobDetailService {
 	    } catch (Exception e) {
 	        throw new RuntimeException("Failed to save jobs: " + e.getMessage());
 	    }
+	}
+
+	@Override
+	public JobDetail getJobBySlug(String slug) {
+		 JobDetail job = jobDetailRepository.findByJobDesignation(slug)
+		            .orElseThrow(() -> new RuntimeException("Job not found with slug: " + slug));
+		    return job;
 	}
     
 }

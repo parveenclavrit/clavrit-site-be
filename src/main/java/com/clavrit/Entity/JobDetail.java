@@ -12,6 +12,7 @@ public class JobDetail {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "job_designation", nullable = false, unique = true)
     private String jobDesignation;
     
     @ElementCollection

@@ -10,9 +10,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.clavrit.Dto.BlogDto;
 import com.clavrit.Dto.JobDetailDTO;
+import com.clavrit.Entity.Blog;
+import com.clavrit.Entity.JobDetail;
 import com.clavrit.Enums.ApiStatus;
 import com.clavrit.Service.JobDetailService;
 import com.clavrit.response.ApisResponse;
@@ -31,6 +35,16 @@ public class JobDetailController {
             return new ApisResponse(ApiStatus.CREATED, "Job created successfully.", saved);
         } catch (Exception e) {
             return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error creating job.", e.getMessage());
+        }
+    }
+    
+    @GetMapping("/slug")
+    public ApisResponse getJobBySlug(@RequestParam("slug") String slug) {
+        try {
+            JobDetail job = jobDetailService.getJobBySlug(slug);
+            return new ApisResponse(ApiStatus.OK, "Job fetched successfully", job);
+        } catch (Exception e) {
+            return new ApisResponse(ApiStatus.NOT_FOUND, "Error fetching blog", e.getMessage());
         }
     }
 
