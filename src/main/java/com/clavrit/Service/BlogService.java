@@ -21,5 +21,5 @@ public interface BlogService {
     List<Blog> createBlogList( List<Blog> blogs);
 
 	BlogDto getBlogBySlug(String slug);
-
+    String uploadImages(MultipartFile file);
 }
