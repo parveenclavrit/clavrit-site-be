@@ -44,6 +44,10 @@ public class BlogServiceImpl implements BlogService{
     
     @Value("${PUBLIC_URL_BASE}")
     private String PUBLIC_URL_BASE;
+    
+    @Value("${file.upload.blogcontentimages}")
+   	private String blogcontentImagePath;
+    
 
 	@Override
 	public BlogDto createBlog(BlogDto blogDto, MultipartFile bannerImage) {
@@ -299,6 +303,38 @@ public class BlogServiceImpl implements BlogService{
 	    Blog blog = blogRepository.findBySlug(slug)
 	            .orElseThrow(() -> new RuntimeException("Blog not found with slug: " + slug));
 	    return blogMapper.toDto(blog);
+	}
+
+	@Override
+	public String uploadImages(MultipartFile file) {
+		
+		    if (file == null || file.isEmpty()) {
+		        return null;
+		    }
+
+		    try {
+		        File dir = new File(blogcontentImagePath);
+		        if (!dir.exists() && !dir.mkdirs()) {
+		            throw new RuntimeException("Failed to create directory: " + blogImagePath);
+		        }
+
+		        String uniqueFileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+		        String fullPath = blogcontentImagePath + uniqueFileName;
+
+		        file.transferTo(new File(fullPath));
+		        logger.info("Saved blog image to: {}", fullPath);
+
+		        // Convert local path to public URL
+		        String publicUrl = fullPath
+		                .replace(LOCAL_URL_BASE, PUBLIC_URL_BASE)
+		                .replace("\\", "/"); // normalize for Windows
+
+		        return publicUrl;
+		    } catch (Exception e) {
+		        logger.error("Image saving failed", e);
+		        throw new RuntimeException("Error saving image: " + e.getMessage(), e);
+		    }
+		
 	}
 
 
