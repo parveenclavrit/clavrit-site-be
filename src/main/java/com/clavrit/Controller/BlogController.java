@@ -1,9 +1,12 @@
 package com.clavrit.Controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -108,5 +111,16 @@ public class BlogController {
         	return new ApisResponse(ApiStatus.INTERNAL_ERROR, "Error deleting blog", e.getMessage());
         }
     }
+    
+    @PostMapping(value = "/media/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, String>> saveMedia(@RequestParam("image") MultipartFile file ) {
+        String contentImageUrl = blogService.uploadImages(file); // remove any spaces
+        
+        Map<String, String> response = new HashMap();
+        response.put("path", contentImageUrl); // Summernote expects key 'path'
+        
+        return ResponseEntity.ok(response);
+    }
+
 
 }
